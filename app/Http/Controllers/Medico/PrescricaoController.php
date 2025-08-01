@@ -48,7 +48,6 @@ class PrescricaoController extends Controller
         // 3. Loop para salvar cada um dos medicamentos
         foreach ($validated['medicamentos'] as $medicamentoData) {
             // Usamos o relacionamento que definimos no Model para criar o medicamento
-            // O Laravel preenche o 'prescricao_id' automaticamente para nós!
             $prescricao->medicamentos()->create([
                 'nome_medicamento' => $medicamentoData['nome_medicamento'],
                 'dosagem' => $medicamentoData['dosagem'],
@@ -59,5 +58,23 @@ class PrescricaoController extends Controller
 
         // 4. Redirecionamento com uma mensagem de sucesso
         return redirect()->route('medico.dashboard')->with('success', 'Prescrição gerada com sucesso!');
+    }
+
+    /**
+     * Mostra os detalhes de uma prescrição específica.
+     */
+    public function show(Prescricao $prescricao)
+    {
+        // Garante que apenas o médico que criou a prescrição possa vê-la
+        if (Auth::id() !== $prescricao->medico_id) {
+            abort(403); // Acesso negado
+        }
+
+        // Carrega os dados relacionados para otimização
+        $prescricao->load(['paciente.pacienteProfile', 'medico.medicoProfile', 'medicamentos']);
+
+        return view('medico.prescricoes.show', [
+            'prescricao' => $prescricao
+        ]);
     }
 }

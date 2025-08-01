@@ -32,7 +32,7 @@ Route::middleware(['auth', 'is.medico'])->prefix('medico')->name('medico.')->gro
     
     Route::get('/prescricoes/nova', [PrescricaoController::class, 'create'])->name('prescricoes.create');
     Route::post('/prescricoes', [PrescricaoController::class, 'store'])->name('prescricoes.store');
-
+    Route::get('/prescricoes/{prescricao}', [PrescricaoController::class, 'show'])->name('prescricoes.show');
 });
 
 require __DIR__.'/auth.php';

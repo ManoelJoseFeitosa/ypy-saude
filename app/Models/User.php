@@ -74,4 +74,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Prescricao::class, 'paciente_id');
     }
+
+    /**
+ * Relação: um Usuário pode ter um Perfil de Paciente.
+ */
+    public function pacienteProfile()
+    {
+        return $this->hasOne(PacienteProfile::class);
+    }
 }

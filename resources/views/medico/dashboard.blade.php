@@ -1,3 +1,4 @@
+{{-- Em resources/views/medico/dashboard.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight" style="color: #002e7a;">
@@ -54,8 +55,8 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $prescricao->paciente->name }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm capitalize">{{ $prescricao->status }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            {{-- O link para visualizar os detalhes virá aqui no futuro --}}
-                                            <a href="#" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900">Visualizar</a>
+                                            {{-- LINK CORRIGIDO ABAIXO --}}
+                                            <a href="{{ route('medico.prescricoes.show', $prescricao) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900">Visualizar</a>
                                         </td>
                                     </tr>
                                 @empty
