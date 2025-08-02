@@ -13,7 +13,12 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
-            },
+        },
+        colors: {
+            'piaui-blue': '#002e7a',
+            'piaui-green': '#00995d',
+            'piaui-yellow': '#fcd900',
+        },
         },
     },
 

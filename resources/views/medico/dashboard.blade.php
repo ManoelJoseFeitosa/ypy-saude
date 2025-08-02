@@ -1,8 +1,8 @@
 {{-- Em resources/views/medico/dashboard.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight" style="color: #002e7a;">
-            {{ __('Painel do Médico') }}
+        <h2 class="font-semibold text-xl text-piaui-blue dark:text-gray-200 leading-tight">
+        {{ __('Painel do Médico') }}
         </h2>
     </x-slot>
 
