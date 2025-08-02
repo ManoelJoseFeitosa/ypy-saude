@@ -35,7 +35,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         // Caso contrário, redireciona para o painel padrão (de paciente).
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('paciente.dashboard', absolute: false));
     }
 
     /**

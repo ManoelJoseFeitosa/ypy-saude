@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PrescricaoController extends Controller
 {
@@ -43,6 +45,7 @@ class PrescricaoController extends Controller
             'medico_id' => Auth::id(), // Pega o ID do médico logado
             'paciente_id' => $validated['paciente_id'],
             'data_prescricao' => now(), // Define a data e hora atuais
+            'hash_validacao' => (string) Str::uuid(),
         ]);
 
         // 3. Loop para salvar cada um dos medicamentos
@@ -76,5 +79,27 @@ class PrescricaoController extends Controller
         return view('medico.prescricoes.show', [
             'prescricao' => $prescricao
         ]);
+    }
+
+    /**
+ * Gera o PDF de uma prescrição específica.
+ */
+    public function gerarPdf(Prescricao $prescricao)
+    {
+          // Garante que apenas o médico que criou a prescrição possa gerar o PDF
+            if (Auth::id() !== $prescricao->medico_id) {
+            abort(403);
+            }
+
+    // Carrega todos os dados necessários
+    $prescricao->load(['paciente.pacienteProfile', 'medico.medicoProfile', 'medicamentos']);
+
+    // Gera o PDF usando a biblioteca e a nossa view de PDF
+    $pdf = Pdf::loadView('pdf.prescricao', [
+        'prescricao' => $prescricao
+    ]);
+
+    // Retorna o PDF para ser exibido no navegador
+    return $pdf->stream('prescricao-'.$prescricao->id.'.pdf');
     }
 }

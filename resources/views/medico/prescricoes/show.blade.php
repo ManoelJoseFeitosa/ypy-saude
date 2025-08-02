@@ -20,10 +20,10 @@
 
                     {{-- Dados do Paciente e Médico --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                        {{-- BLOCO DO PACIENTE CORRIGIDO --}}
+                        {{-- Bloco do Paciente Corrigido --}}
                         <div>
                             <h4 class="font-bold text-gray-700 dark:text-gray-300">Paciente</h4>
-                            <p class="mt-1">{{ $prescricao->paciente->name }}</p> {{-- <-- ESTA LINHA ESTAVA FALTANDO --}}
+                            <p class="mt-1">{{ $prescricao->paciente->name }}</p>
                             @if($prescricao->paciente->pacienteProfile && $prescricao->paciente->pacienteProfile->cpf)
                                 <p class="text-sm text-gray-500">CPF: {{ $prescricao->paciente->pacienteProfile->cpf }}</p>
                             @endif
@@ -57,8 +57,13 @@
                         </div>
                     </div>
 
-                    <div class="mt-8 text-center">
-                        <a href="{{ route('medico.dashboard') }}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">Voltar ao Painel</a>
+                    {{-- Botões de Ação --}}
+                    <div class="mt-8 flex items-center justify-center space-x-6">
+                        <a href="{{ route('medico.dashboard') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:underline">Voltar ao Painel</a>
+
+                        <a href="{{ route('medico.prescricoes.pdf', $prescricao) }}" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150" style="background-color: #002e7a;">
+                            Gerar PDF
+                        </a>
                     </div>
                 </div>
             </div>

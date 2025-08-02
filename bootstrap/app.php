@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // A linha abaixo registra o "apelido" para o nosso middleware.
         $middleware->alias([
             'is.medico' => \App\Http\Middleware\CheckIsMedico::class,
+            'is.paciente' => \App\Http\Middleware\CheckIsPaciente::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
