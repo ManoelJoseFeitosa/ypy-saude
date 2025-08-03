@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\LandingPageController; // Importa o novo controller
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\Medico\DashboardController as MedicoDashboardController;
 use App\Http\Controllers\Medico\PrescricaoController;
 use App\Http\Controllers\Paciente\DashboardController as PacienteDashboardController;
@@ -10,6 +10,8 @@ use App\Http\Controllers\Paciente\PrescricaoController as PacientePrescricaoCont
 use App\Http\Controllers\Medico\AtestadoController;
 use App\Http\Controllers\Paciente\AtestadoController as PacienteAtestadoController;
 use App\Http\Controllers\ApiProxyController;
+use App\Http\Controllers\Medico\PacienteController;
+use App\Http\Controllers\Medico\LaudoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +22,10 @@ Route::get('/', [LandingPageController::class, 'home'])->name('home');
 Route::get('/contato', [LandingPageController::class, 'contato'])->name('contato');
 Route::get('/planos', [LandingPageController::class, 'planos'])->name('planos');
 
+// ROTAS DE VALIDAÇÃO UNIFICADAS
+Route::get('/validar/prescricao/{hash}', [ValidacaoController::class, 'show'])->setDefaults(['tipo' => 'prescricao'])->name('prescricao.validar.show');
+Route::get('/validar/atestado/{hash}', [ValidacaoController::class, 'show'])->setDefaults(['tipo' => 'atestado'])->name('atestado.validar.show');
+Route::get('/validar/laudo/{hash}', [ValidacaoController::class, 'show'])->setDefaults(['tipo' => 'laudo'])->name('laudo.validar.show');
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +54,9 @@ Route::middleware(['auth', 'is.medico'])->prefix('medico')->name('medico.')->gro
     Route::get('/pacientes', [PacienteController::class, 'index'])->name('pacientes.index');
     Route::get('/pacientes/{paciente}', [PacienteController::class, 'show'])->name('pacientes.show');    
     Route::post('/pacientes/{paciente}/prontuario', [PacienteController::class, 'storeProntuario'])->name('pacientes.prontuario.store');
+    Route::get('/laudos/novo', [LaudoController::class, 'create'])->name('laudos.create');
+    Route::post('/laudos', [LaudoController::class, 'store'])->name('laudos.store');
+    Route::get('/laudos/{laudo}/pdf', [LaudoController::class, 'gerarPdf'])->name('laudos.pdf');
 });
 
 // Rotas do Paciente
@@ -55,6 +64,7 @@ Route::middleware(['auth', 'is.paciente'])->prefix('paciente')->name('paciente.'
     Route::get('/dashboard', [PacienteDashboardController::class, 'index'])->name('dashboard');
     Route::get('/prescricoes/{prescricao}', [PacientePrescricaoController::class, 'show'])->name('prescricoes.show');
     Route::get('/atestados/{atestado}/pdf', [PacienteAtestadoController::class, 'gerarPdf'])->name('atestados.pdf');
+    Route::get('/laudos/{laudo}/pdf', [PacienteLaudoController::class, 'gerarPdf'])->name('laudos.pdf');
 });
 
 // Rota Pública de Validação

@@ -21,16 +21,23 @@ class DashboardController extends Controller
                               ->latest('data_prescricao')
                               ->paginate(5, ['*'], 'prescricoes_page');
 
-        // Busca os atestados do paciente (ESTA PARTE ESTAVA FALTANDO)
+        // Busca os atestados do paciente 
         $atestados = $paciente->atestadosRecebidos()
                                     ->with('medico')
                                     ->latest('data_emissao')
                                     ->paginate(5, ['*'], 'atestados_page');
 
+        // Busca os laudos do paciente 
+        $laudos = $paciente->laudosRecebidos()
+                               ->with('medico')
+                               ->latest('data_emissao')
+                               ->paginate(5, ['*'], 'laudos_page');
+
         // Retorna a view, agora enviando AMBAS as listas de dados
         return view('paciente.dashboard', [
             'prescricoes' => $prescricoes,
             'atestados'   => $atestados, // Envia a variável $atestados para a view
+            'laudos'      => $laudos, // Envia a nova lista para a view
         ]);
     }
 }

@@ -92,4 +92,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(Prontuario::class, 'paciente_id');
     }
+
+    // --- Laudos ---
+    public function laudosEmitidos(): HasMany
+    {
+        return $this->hasMany(Laudo::class, 'medico_id');
+    }
+
+    public function laudosRecebidos(): HasMany
+    {
+        return $this->hasMany(Laudo::class, 'paciente_id');
+    }
 }

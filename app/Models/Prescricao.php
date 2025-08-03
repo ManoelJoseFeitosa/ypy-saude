@@ -28,6 +28,7 @@ class Prescricao extends Model
         'paciente_id',
         'data_prescricao',
         'status',
+        'tipo',
         'hash_validacao',
     ];
 
