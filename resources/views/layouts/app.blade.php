@@ -7,30 +7,34 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+    {{-- ADICIONADA A CLASSE 'relative' PARA POSICIONAR AS BARRAS --}}
+    <body class="font-sans antialiased relative">
+        {{-- ADICIONADA MARGEM HORIZONTAL 'sm:mx-10' PARA NÃO FICAR ATRÁS DAS BARRAS --}}
+        <div class="min-h-screen bg-gray-100 dark:bg-gray-900 sm:mx-10">
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
+            @if (isset($header))
+                <header class="bg-white dark:bg-gray-800 shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
                 </header>
-            @endisset
+            @endif
 
-            <!-- Page Content -->
             <main>
                 {{ $slot }}
             </main>
         </div>
+
+        {{-- Barra Azul Esquerda --}}
+        <div class="absolute left-0 top-0 bottom-0 w-10 bg-piaui-blue hidden sm:block"></div>
+
+        {{-- Barra Azul Direita --}}
+        <div class="absolute right-0 top-0 bottom-0 w-10 bg-piaui-blue hidden sm:block"></div>
     </body>
 </html>

@@ -27,9 +27,14 @@
                         <a href="{{ route('medico.prescricoes.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150" style="background-color: #002e7a; hover:background-color: #001f54;">
                             + Nova Prescrição
                         </a>
+                        <a href="{{ route('medico.atestados.create') }}" class="inline-flex items-center px-4 py-2 bg-piaui-green border ...">
+                            + Novo Atestado
+                        </a>
                     </div>
+                    
                 </div>
             </div>
+        </div>
 
             {{-- Card do Histórico de Prescrições --}}
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">

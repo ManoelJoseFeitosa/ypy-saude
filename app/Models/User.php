@@ -49,37 +49,47 @@ class User extends Authenticatable
         ];
     }
 
-    // --- RELACIONAMENTOS ADICIONADOS ---
+    // --- RELACIONAMENTOS ---
 
-    /**
-     * Relação: um Usuário pode ter um Perfil de Médico.
-     */
+    // --- Perfis ---
     public function medicoProfile(): HasOne
     {
         return $this->hasOne(MedicoProfile::class);
     }
 
-    /**
-     * Relação: um Usuário (como médico) pode emitir muitas prescrições.
-     */
+    public function pacienteProfile(): HasOne
+    {
+        return $this->hasOne(PacienteProfile::class);
+    }
+
+    // --- Prescrições ---
     public function prescricoesEmitidas(): HasMany
     {
         return $this->hasMany(Prescricao::class, 'medico_id');
     }
 
-    /**
-     * Relação: um Usuário (como paciente) pode receber muitas prescrições.
-     */
     public function prescricoesRecebidas(): HasMany
     {
         return $this->hasMany(Prescricao::class, 'paciente_id');
     }
 
-    /**
- * Relação: um Usuário pode ter um Perfil de Paciente.
- */
-    public function pacienteProfile()
+    // --- Atestados ---
+    public function atestadosEmitidos(): HasMany
     {
-        return $this->hasOne(PacienteProfile::class);
+        return $this->hasMany(Atestado::class, 'medico_id');
+    }
+
+    public function atestadosRecebidos(): HasMany
+    {
+        return $this->hasMany(Atestado::class, 'paciente_id');
+    }
+
+      // --- Prontuários ---
+    /**
+     * Retorna todos os registros de prontuário de um usuário (como paciente).
+     */
+    public function prontuarios(): HasMany
+    {
+        return $this->hasMany(Prontuario::class, 'paciente_id');
     }
 }

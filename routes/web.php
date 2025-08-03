@@ -7,6 +7,9 @@ use App\Http\Controllers\Medico\DashboardController as MedicoDashboardController
 use App\Http\Controllers\Medico\PrescricaoController;
 use App\Http\Controllers\Paciente\DashboardController as PacienteDashboardController;
 use App\Http\Controllers\Paciente\PrescricaoController as PacientePrescricaoController;
+use App\Http\Controllers\Medico\AtestadoController;
+use App\Http\Controllers\Paciente\AtestadoController as PacienteAtestadoController;
+use App\Http\Controllers\ApiProxyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,12 +40,21 @@ Route::middleware(['auth', 'is.medico'])->prefix('medico')->name('medico.')->gro
     Route::post('/prescricoes', [PrescricaoController::class, 'store'])->name('prescricoes.store');
     Route::get('/prescricoes/{prescricao}', [PrescricaoController::class, 'show'])->name('prescricoes.show');
     Route::get('/prescricoes/{prescricao}/pdf', [PrescricaoController::class, 'gerarPdf'])->name('prescricoes.pdf');
+    Route::get('/atestados/novo', [AtestadoController::class, 'create'])->name('atestados.create');
+    Route::post('/atestados', [AtestadoController::class, 'store'])->name('atestados.store');
+    Route::get('/atestados/{atestado}/pdf', [AtestadoController::class, 'gerarPdf'])->name('atestados.pdf');
+    Route::get('/api/cid-search', [ApiProxyController::class, 'searchCid'])->name('api.cid.search');
+    Route::get('/api/medicamentos-search', [ApiProxyController::class, 'searchMedicamentos'])->name('api.medicamentos.search');
+    Route::get('/pacientes', [PacienteController::class, 'index'])->name('pacientes.index');
+    Route::get('/pacientes/{paciente}', [PacienteController::class, 'show'])->name('pacientes.show');    
+    Route::post('/pacientes/{paciente}/prontuario', [PacienteController::class, 'storeProntuario'])->name('pacientes.prontuario.store');
 });
 
 // Rotas do Paciente
 Route::middleware(['auth', 'is.paciente'])->prefix('paciente')->name('paciente.')->group(function () {
     Route::get('/dashboard', [PacienteDashboardController::class, 'index'])->name('dashboard');
     Route::get('/prescricoes/{prescricao}', [PacientePrescricaoController::class, 'show'])->name('prescricoes.show');
+    Route::get('/atestados/{atestado}/pdf', [PacienteAtestadoController::class, 'gerarPdf'])->name('atestados.pdf');
 });
 
 // Rota Pública de Validação
