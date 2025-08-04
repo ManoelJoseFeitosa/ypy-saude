@@ -23,4 +23,10 @@ class LandingPageController extends Controller
     {
         return view('pages.planos');
     }
+
+    // Método para a página de termo de uso
+    public function termos()
+    {
+        return view('pages.termos');
+    }
 }

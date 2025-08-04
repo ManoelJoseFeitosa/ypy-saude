@@ -20,6 +20,8 @@ class MedicoProfile extends Model
         'crm',
         'uf_crm',
         'especialidade',
+        'rqe',
+        'endereco_completo',
     ];
 
     /**

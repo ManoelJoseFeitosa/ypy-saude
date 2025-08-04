@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+// --- Imports adicionados para o envio de e-mail ---
+use Illuminate\Support\Facades\Mail;
+use App\Mail\DocumentoMedicoDisponivel;
+
 class PrescricaoController extends Controller
 {
     /**
@@ -59,6 +63,28 @@ class PrescricaoController extends Controller
                 'posologia' => $medicamentoData['posologia'],
             ]);
         }
+
+        // --- INÍCIO DO BLOCO DE ENVIO DE E-MAIL ---
+        try {
+            // Buscamos os objetos completos do paciente e do médico
+            $paciente = User::find($validated['paciente_id']);
+            $medico = Auth::user(); // Pega o médico logado
+
+            // Dispara o e-mail usando a classe Mailable que criamos
+            Mail::to($paciente->email)->send(new DocumentoMedicoDisponivel(
+                $paciente,
+                $medico,
+                'Prescrição',      // Tipo do documento
+                $prescricao->id    // ID do documento para gerar a URL de visualização
+            ));
+
+        } catch (\Exception $e) {
+            // Se o envio do e-mail falhar, registra o erro no log, mas não interrompe o fluxo.
+            // Isso é importante para que o médico não receba um erro caso o e-mail não possa ser enviado.
+            \Log::error('Falha ao enviar e-mail de notificação de prescrição: ' . $e->getMessage());
+        }
+        // --- FIM DO BLOCO DE ENVIO DE E-MAIL ---
+
 
         // 4. Redirecionamento com uma mensagem de sucesso
         return redirect()->route('medico.dashboard')->with('success', 'Prescrição gerada com sucesso!');

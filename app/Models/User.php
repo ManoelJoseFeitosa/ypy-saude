@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany; // Classe de relacionamento adicionada
 
 class User extends Authenticatable
 {
@@ -23,7 +24,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'tipo', // Adicionado para permitir a definição do tipo de usuário
+        'tipo',
+        'terms_accepted_at',
     ];
 
     /**
@@ -84,10 +86,7 @@ class User extends Authenticatable
         return $this->hasMany(Atestado::class, 'paciente_id');
     }
 
-      // --- Prontuários ---
-    /**
-     * Retorna todos os registros de prontuário de um usuário (como paciente).
-     */
+     // --- Prontuários ---
     public function prontuarios(): HasMany
     {
         return $this->hasMany(Prontuario::class, 'paciente_id');
@@ -102,5 +101,23 @@ class User extends Authenticatable
     public function laudosRecebidos(): HasMany
     {
         return $this->hasMany(Laudo::class, 'paciente_id');
+    }
+
+    // --- NOVOS VÍNCULOS DIRETOS (Muitos-para-Muitos) ---
+
+    /**
+     * Os pacientes que este médico atende.
+     */
+    public function pacientes(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'medico_paciente', 'medico_id', 'paciente_id');
+    }
+
+    /**
+     * Os médicos que atendem este paciente.
+     */
+    public function medicos(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'medico_paciente', 'paciente_id', 'medico_id');
     }
 }
