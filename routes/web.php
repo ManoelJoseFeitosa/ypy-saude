@@ -14,6 +14,7 @@ use App\Http\Controllers\Medico\HorarioController;
 use App\Http\Controllers\Paciente\DashboardController as PacienteDashboardController;
 use App\Http\Controllers\Paciente\DocumentoController;
 use App\Http\Controllers\Paciente\AgendamentoController;
+use App\Http\Controllers\EHRTestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +33,9 @@ Route::get('/api/medicos-search', [ApiProxyController::class, 'searchMedicos'])-
 Route::get('/validar/prescricao/{hash}', [ValidacaoController::class, 'show'])->setDefaults(['tipo' => 'prescricao'])->name('prescricao.validar.show');
 Route::get('/validar/atestado/{hash}', [ValidacaoController::class, 'show'])->setDefaults(['tipo' => 'atestado'])->name('atestado.validar.show');
 Route::get('/validar/laudo/{hash}', [ValidacaoController::class, 'show'])->setDefaults(['tipo' => 'laudo'])->name('laudo.validar.show');
+
+// Rotas de Integração
+Route::get('/ehr/paciente/{id}', [EHRTestController::class, 'show'])->name('ehr.paciente.show');
 
 /*
 |--------------------------------------------------------------------------
