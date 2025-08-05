@@ -15,6 +15,7 @@ use App\Http\Controllers\Paciente\DashboardController as PacienteDashboardContro
 use App\Http\Controllers\Paciente\DocumentoController;
 use App\Http\Controllers\Paciente\AgendamentoController;
 use App\Http\Controllers\EHRTestController;
+use App\Http\Controllers\MercadoPagoController; // ADICIONADO
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,23 @@ Route::get('/validar/laudo/{hash}', [ValidacaoController::class, 'show'])->setDe
 // Rotas de Integração
 Route::get('/ehr/paciente/{id}', [EHRTestController::class, 'show'])->name('ehr.paciente.show');
 
+
+/*
+|--------------------------------------------------------------------------
+| Rotas de Pagamentos e Assinaturas (Mercado Pago) - ADICIONADO
+|--------------------------------------------------------------------------
+*/
+// Rota para onde o médico é redirecionado após o pré-cadastro
+Route::get('/subscribe/checkout/{user}', [MercadoPagoController::class, 'checkout'])->name('mercadopago.checkout');
+
+// Rotas de retorno para o usuário após a tentativa de pagamento
+Route::get('/subscribe/success', [MercadoPagoController::class, 'success'])->name('subscribe.success');
+Route::get('/subscribe/failure', [MercadoPagoController::class, 'failure'])->name('subscribe.failure');
+
+// Rota para o Webhook (notificação do servidor do Mercado Pago)
+Route::post('/mercadopago/webhook', [MercadoPagoController::class, 'webhook'])->name('mercadopago.webhook');
+
+
 /*
 |--------------------------------------------------------------------------
 | Rotas Protegidas (Exigem Login)
@@ -51,7 +69,6 @@ Route::get('/dashboard', function () {
 
 // Rotas do Médico
 Route::middleware(['auth', 'verified', 'can:is-medico'])->prefix('medico')->name('medico.')->group(function () {
-    // CORRIGIDO: Adicionada a ação para o dashboard do médico
     Route::get('/dashboard', [MedicoDashboardController::class, 'index'])->name('dashboard');
     
     Route::get('/prescricoes/nova', [PrescricaoController::class, 'create'])->name('prescricoes.create');
@@ -81,10 +98,7 @@ Route::middleware(['auth', 'verified', 'can:is-medico'])->prefix('medico')->name
 
 // Rotas do Paciente
 Route::middleware(['auth', 'verified', 'can:is-paciente'])->prefix('paciente')->name('paciente.')->group(function () {
-    // CORRIGIDO: Adicionada a ação para o dashboard do paciente
     Route::get('/dashboard', [PacienteDashboardController::class, 'index'])->name('dashboard');
-    
-    // CORRIGIDO: Adicionada a ação para a visualização de documentos
     Route::get('/documentos/{tipo}/{id}', [DocumentoController::class, 'show'])->name('documentos.show');
 });
 

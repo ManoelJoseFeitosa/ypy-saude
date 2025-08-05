@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    // --- BLOCO ADICIONADO ---
+    'mercadopago' => [
+        'token' => env('MERCADOPAGO_TOKEN'),
+    ],
+
 ];

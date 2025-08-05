@@ -49,14 +49,26 @@ class RegisteredUserController extends Controller
             'medico_id' => ['nullable', 'exists:users,id'], // Valida o novo campo de vínculo
         ]);
 
-        $user = User::create([
+        // --- LÓGICA DE STATUS ADICIONADA ---
+        // Define os dados base do usuário
+        $userData = [
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'tipo' => $request->tipo,
-            'terms_accepted_at' => now(), // Salva a data e hora do aceite
-        ]);
+            'terms_accepted_at' => now(),
+        ];
 
+        // Define o status da conta com base no tipo de usuário
+        if ($request->tipo === 'medico') {
+            $userData['status'] = 'pagamento_pendente';
+        } else {
+            $userData['status'] = 'ativo'; // Pacientes são ativados imediatamente
+        }
+
+        $user = User::create($userData);
+
+        // --- LÓGICA DE CRIAÇÃO DE PERFIL (Mantida) ---
         if ($user->tipo === 'medico') {
             MedicoProfile::create([
                 'user_id' => $user->id,
@@ -67,20 +79,15 @@ class RegisteredUserController extends Controller
                 'endereco_completo' => $request->endereco_completo,
             ]);
         } 
-        // Se for paciente, cria o perfil de paciente
         elseif ($user->tipo === 'paciente') {
             PacienteProfile::create([
                 'user_id' => $user->id,
                 'cpf' => $request->cpf,
             ]);
 
-            // --- LÓGICA DE VÍNCULO ADICIONADA ---
-            // Se um médico foi selecionado no formulário, cria o vínculo
             if ($request->filled('medico_id')) {
                 $medico = User::find($request->medico_id);
-                // Garante que o ID selecionado é realmente de um médico
                 if ($medico && $medico->tipo === 'medico') {
-                    // Usa o relacionamento 'medicos()' para criar a ligação na tabela pivô
                     $user->medicos()->attach($medico->id);
                 }
             }
@@ -88,8 +95,22 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // --- LÓGICA DE REDIRECIONAMENTO CONDICIONAL ---
+        // Se for paciente, faz o login e vai para o dashboard
+        if ($user->tipo === 'paciente') {
+            Auth::login($user);
+            return redirect(route('dashboard', absolute: false));
+        } 
+        // Se for médico, NÃO faz login e vai para o checkout
+        elseif ($user->tipo === 'medico') {
+            // Adiciona uma mensagem flash para explicar o próximo passo ao usuário
+            session()->flash('info', 'Seu pré-cadastro foi realizado com sucesso! Efetue o pagamento para ativar sua conta e ter acesso completo à plataforma.');
+            
+            // Redireciona para a rota de checkout do Mercado Pago
+            return redirect()->route('mercadopago.checkout', ['user' => $user->id]);
+        }
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirecionamento padrão de segurança (não deve ser atingido)
+        return redirect('/');
     }
 }
