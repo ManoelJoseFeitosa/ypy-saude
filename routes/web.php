@@ -4,16 +4,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\ValidacaoController;
-use App\Http\Controllers\ApiProxyController; // Importa o ApiProxyController
+use App\Http\Controllers\ApiProxyController;
 use App\Http\Controllers\Medico\DashboardController as MedicoDashboardController;
 use App\Http\Controllers\Medico\PrescricaoController;
 use App\Http\Controllers\Medico\AtestadoController;
 use App\Http\Controllers\Medico\LaudoController;
 use App\Http\Controllers\Medico\PacienteController;
+use App\Http\Controllers\Medico\HorarioController;
 use App\Http\Controllers\Paciente\DashboardController as PacienteDashboardController;
-use App\Http\Controllers\Paciente\PrescricaoController as PacientePrescricaoController;
-use App\Http\Controllers\Paciente\AtestadoController as PacienteAtestadoController;
-use App\Http\Controllers\Paciente\LaudoController as PacienteLaudoController;
+use App\Http\Controllers\Paciente\DocumentoController;
+use App\Http\Controllers\Paciente\AgendamentoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,7 +33,6 @@ Route::get('/validar/prescricao/{hash}', [ValidacaoController::class, 'show'])->
 Route::get('/validar/atestado/{hash}', [ValidacaoController::class, 'show'])->setDefaults(['tipo' => 'atestado'])->name('atestado.validar.show');
 Route::get('/validar/laudo/{hash}', [ValidacaoController::class, 'show'])->setDefaults(['tipo' => 'laudo'])->name('laudo.validar.show');
 
-
 /*
 |--------------------------------------------------------------------------
 | Rotas Protegidas (Exigem Login)
@@ -47,7 +46,8 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Rotas do Médico
-Route::middleware(['auth', 'is.medico'])->prefix('medico')->name('medico.')->group(function () {
+Route::middleware(['auth', 'verified', 'can:is-medico'])->prefix('medico')->name('medico.')->group(function () {
+    // CORRIGIDO: Adicionada a ação para o dashboard do médico
     Route::get('/dashboard', [MedicoDashboardController::class, 'index'])->name('dashboard');
     
     Route::get('/prescricoes/nova', [PrescricaoController::class, 'create'])->name('prescricoes.create');
@@ -67,17 +67,29 @@ Route::middleware(['auth', 'is.medico'])->prefix('medico')->name('medico.')->gro
     Route::get('/pacientes/{paciente}', [PacienteController::class, 'show'])->name('pacientes.show');
     Route::post('/pacientes/{paciente}/prontuario', [PacienteController::class, 'storeProntuario'])->name('pacientes.prontuario.store');
 
-    // APIs internas para o médico
+    Route::get('/horarios', [HorarioController::class, 'index'])->name('horarios.index');
+    Route::post('/horarios', [HorarioController::class, 'store'])->name('horarios.store');
+    Route::delete('/horarios/{horario}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
+
     Route::get('/api/cid-search', [ApiProxyController::class, 'searchCid'])->name('api.cid.search');
     Route::get('/api/medicamentos-search', [ApiProxyController::class, 'searchMedicamentos'])->name('api.medicamentos.search');
 });
 
 // Rotas do Paciente
-Route::middleware(['auth', 'is.paciente'])->prefix('paciente')->name('paciente.')->group(function () {
+Route::middleware(['auth', 'verified', 'can:is-paciente'])->prefix('paciente')->name('paciente.')->group(function () {
+    // CORRIGIDO: Adicionada a ação para o dashboard do paciente
     Route::get('/dashboard', [PacienteDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/prescricoes/{prescricao}', [PacientePrescricaoController::class, 'show'])->name('prescricoes.show');
-    Route::get('/atestados/{atestado}/pdf', [PacienteAtestadoController::class, 'gerarPdf'])->name('atestados.pdf');
-    Route::get('/laudos/{laudo}/pdf', [PacienteLaudoController::class, 'gerarPdf'])->name('laudos.pdf');
+    
+    // CORRIGIDO: Adicionada a ação para a visualização de documentos
+    Route::get('/documentos/{tipo}/{id}', [DocumentoController::class, 'show'])->name('documentos.show');
+});
+
+// Rotas para Agendamento pelo Paciente
+Route::middleware(['auth', 'verified', 'can:is-paciente'])->prefix('agendamento')->name('agendamento.')->group(function () {
+    Route::get('/', [AgendamentoController::class, 'index'])->name('index');
+    Route::get('/medico/{medico}', [AgendamentoController::class, 'show'])->name('show');
+    Route::get('/medico/{medico}/horarios', [AgendamentoController::class, 'fetchHorarios'])->name('fetchHorarios');
+    Route::post('/medico/{medico}', [AgendamentoController::class, 'store'])->name('store');
 });
 
 // Rotas de Perfil do Usuário

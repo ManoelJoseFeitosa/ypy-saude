@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany; // Classe de relacionamento adicionada
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -56,7 +56,8 @@ class User extends Authenticatable
     // --- Perfis ---
     public function medicoProfile(): HasOne
     {
-        return $this->hasOne(MedicoProfile::class);
+        // CORREÇÃO APLICADA AQUI: Especifica a chave estrangeira correta.
+        return $this->hasOne(MedicoProfile::class, 'user_id');
     }
 
     public function pacienteProfile(): HasOne
@@ -119,5 +120,13 @@ class User extends Authenticatable
     public function medicos(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'medico_paciente', 'paciente_id', 'medico_id');
+    }
+
+    /**
+     * Retorna os horários de atendimento definidos por este utilizador (se for médico).
+     */
+    public function horariosDisponiveis()
+    {
+        return $this->hasMany(HorarioDisponivel::class, 'medico_id');
     }
 }

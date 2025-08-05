@@ -15,13 +15,12 @@
                         {{ ucfirst($tipo) }} emitido por Dr(a). {{ $documento->medico->name }}
                     </h3>
 
-                    <p class="mb-2"><strong>Data de Emissão:</strong> {{ $documento->created_at->format('d/m/Y') }}</p>
+                    <p class="mb-2"><strong>Data de Emissão:</strong> {{ \Carbon\Carbon::parse($documento->created_at)->format('d/m/Y') }}</p>
                     <p class="mb-6"><strong>Paciente:</strong> {{ $documento->paciente->name }}</p>
 
-                    {{-- Aqui você pode adicionar os detalhes específicos de cada documento --}}
-                    {{-- Por exemplo, se for uma prescrição, listar os medicamentos --}}
+                    {{-- Detalhes da Prescrição --}}
                     @if($tipo === 'prescrição' && $documento->medicamentos)
-                        <div class="mt-6">
+                        <div class="mt-6 border-t pt-4">
                             <h4 class="text-xl font-semibold mb-3">Medicamentos Prescritos</h4>
                             <ul class="list-disc list-inside space-y-4">
                                 @foreach($documento->medicamentos as $medicamento)
@@ -37,11 +36,38 @@
                         </div>
                     @endif
 
-                    {{-- Adicionar lógica similar para Atestados e Laudos aqui --}}
+                    {{-- Detalhes do Atestado --}}
+                    @if($tipo === 'atestado')
+                        <div class="mt-6 border-t pt-4 space-y-3">
+                            <h4 class="text-xl font-semibold mb-3">Detalhes do Atestado</h4>
+                            <p><strong>CID:</strong> {{ $documento->cid ?? 'Não informado' }}</p>
+                            <p><strong>Dias de Afastamento:</strong> {{ $documento->dias_afastamento ?? 'Não especificado' }}</p>
+                            <div>
+                                <p><strong>Observações:</strong></p>
+                                <p class="pl-2 mt-1">{{ $documento->observacoes }}</p>
+                            </div>
+                        </div>
+                    @endif
 
-                    <div class="mt-8">
-                        {{-- Adapte esta rota para a rota de gerar PDF que você já tem --}}
-                        <a href="#" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                    {{-- Detalhes do Laudo --}}
+                    @if($tipo === 'laudo')
+                        <div class="mt-6 border-t pt-4">
+                             <h4 class="text-xl font-semibold mb-3">Descrição do Laudo</h4>
+                             <p>{{ $documento->descricao }}</p>
+                        </div>
+                    @endif
+
+
+                    <div class="mt-8 border-t pt-6">
+                        @php
+                            // Define a rota correta para o PDF com base no tipo
+                            $pdfRoute = '';
+                            if ($tipo === 'prescrição') $pdfRoute = route('medico.prescricoes.pdf', $documento->id);
+                            if ($tipo === 'atestado') $pdfRoute = route('medico.atestados.pdf', $documento->id);
+                            if ($tipo === 'laudo') $pdfRoute = route('medico.laudos.pdf', $documento->id);
+                        @endphp
+
+                        <a href="{{ $pdfRoute }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
                             Baixar PDF
                         </a>
                     </div>

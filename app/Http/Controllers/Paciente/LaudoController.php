@@ -1,6 +1,5 @@
-    <?php
-
-    namespace App\Http\Controllers\Paciente;
+<?php
+namespace App\Http\Controllers\Paciente;
 
     use App\Http\Controllers\Controller;
     use App\Models\Laudo;

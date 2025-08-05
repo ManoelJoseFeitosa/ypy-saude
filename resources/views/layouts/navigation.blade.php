@@ -16,10 +16,20 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    {{-- NOVO LINK PARA MÉDICOS --}}
+                    {{-- Links específicos para Médicos --}}
                     @if(Auth::user()->tipo === 'medico')
                         <x-nav-link :href="route('medico.pacientes.index')" :active="request()->routeIs('medico.pacientes.*')">
                             {{ __('Meus Pacientes') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('medico.horarios.index')" :active="request()->routeIs('medico.horarios.index')">
+                            {{ __('Meus Horários') }}
+                        </x-nav-link>
+                    @endif
+
+                    {{-- Links específicos para Pacientes --}}
+                    @if(Auth::user()->tipo === 'paciente')
+                        <x-nav-link :href="route('agendamento.index')" :active="request()->routeIs('agendamento.*')">
+                            {{ __('Agendar Consulta') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -78,10 +88,20 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             
-            {{-- NOVO LINK PARA MÉDICOS (MENU RESPONSIVO) --}}
+            {{-- Links específicos para Médicos (MENU RESPONSIVO) --}}
             @if(Auth::user()->tipo === 'medico')
                 <x-responsive-nav-link :href="route('medico.pacientes.index')" :active="request()->routeIs('medico.pacientes.*')">
                     {{ __('Meus Pacientes') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('medico.horarios.index')" :active="request()->routeIs('medico.horarios.index')">
+                    {{ __('Meus Horários') }}
+                </x-responsive-nav-link>
+            @endif
+
+            {{-- Links específicos para Pacientes (MENU RESPONSIVO) --}}
+            @if(Auth::user()->tipo === 'paciente')
+                <x-responsive-nav-link :href="route('agendamento.index')" :active="request()->routeIs('agendamento.*')">
+                    {{ __('Agendar Consulta') }}
                 </x-responsive-nav-link>
             @endif
         </div>
