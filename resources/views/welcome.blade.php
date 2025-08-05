@@ -20,7 +20,7 @@
 
                 {{-- Coluna da Imagem --}}
                 <div class="w-full md:w-1/2 px-4 mb-8 md:mb-0">
-                    <img src="{{ asset('images/medico-telemedicina.jpg') }}" alt="Médico realizando um atendimento por telemedicina" class="rounded-lg shadow-2xl w-full">
+                    <img src="{{ asset('images/medico-telemedicina.png') }}" alt="Médico realizando um atendimento por telemedicina" class="rounded-lg shadow-2xl w-full">
                 </div>
 
                 {{-- Coluna do Texto --}}
