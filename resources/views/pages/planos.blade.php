@@ -10,15 +10,14 @@
             </p>
 
             {{-- Grid de Planos --}}
-            <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-start">
                 
                 {{-- CARD PACIENTE --}}
-                <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-8 flex flex-col">
+                <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-8 flex flex-col h-full">
                     <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Paciente</h3>
                     <p class="mt-4 text-4xl font-bold text-piaui-blue">Grátis</p>
                     <p class="text-gray-500 dark:text-gray-400">Para sempre</p>
                     
-                    {{-- Lista de funcionalidades do Paciente ATUALIZADA --}}
                     <ul class="mt-6 space-y-3 text-left flex-grow text-gray-700 dark:text-gray-300">
                         <li class="flex items-center"><svg class="w-5 h-5 text-piaui-green mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Acesso ao seu histórico de documentos</li>
                         <li class="flex items-center"><svg class="w-5 h-5 text-piaui-green mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Receitas, atestados e laudos em PDF</li>
@@ -29,16 +28,17 @@
                 </div>
 
                 {{-- CARD PLANO PADRÃO (MÉDICO) --}}
-                <div class="border-2 border-piaui-blue rounded-lg p-8 flex flex-col relative">
+                <div class="border-2 border-piaui-blue rounded-lg p-8 flex flex-col h-full relative">
                     <span class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-piaui-blue text-white px-3 py-1 text-sm font-bold rounded-full">Mais Popular</span>
                     
-                    {{-- Nome do plano ALTERADO --}}
                     <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Plano Padrão</h3>
                     
-                    {{-- Preço ALTERADO --}}
-                    <p class="mt-4 text-4xl font-bold text-piaui-blue">R$ 59,90<span class="text-lg font-medium text-gray-500 dark:text-gray-400">/mês</span></p>
+                    {{-- PREÇO ALTERADO PARA REFLETIR O MODELO SEMESTRAL --}}
+                    <div class="mt-4">
+                        <p class="text-4xl font-bold text-piaui-blue">R$ 59,90<span class="text-lg font-medium text-gray-500 dark:text-gray-400">/mês</span></p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">(Cobrança semestral de R$ 359,40)</p>
+                    </div>
                     
-                    {{-- Lista de funcionalidades do Médico ATUALIZADA --}}
                     <ul class="mt-6 space-y-3 text-left flex-grow text-gray-700 dark:text-gray-300">
                         <li class="flex items-center"><svg class="w-5 h-5 text-piaui-green mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Emissão ilimitada de receitas, atestados e laudos</li>
                         <li class="flex items-center"><svg class="w-5 h-5 text-piaui-green mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Assinatura Digital com validade jurídica</li>
