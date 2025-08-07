@@ -31,57 +31,10 @@
                                 <x-text-input id="dias_afastamento" class="block mt-1 w-full" type="number" name="dias_afastamento" :value="old('dias_afastamento')" required min="1" />
                             </div>
 
-                            {{-- CAMPO DE BUSCA INTELIGENTE PARA O CID --}}
-                            <div x-data="{ 
-                                    searchTerm: '{{ old('cid', '') }}', 
-                                    results: [], 
-                                    open: false,
-                                    loading: false,
-                                    fetchResults() {
-                                        if (this.searchTerm.length < 2) { this.results = []; this.open = false; return; }
-                                        this.loading = true;
-                                        fetch(`{{ route('api.cid.search') }}?term=${this.searchTerm}`)
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                this.results = Array.isArray(data) ? data : [];
-                                                this.open = true;
-                                                this.loading = false;
-                                            }).catch(() => { this.loading = false; this.open = false; });
-                                    },
-                                    selectCid(cid) {
-                                        this.searchTerm = `${cid.codigo} - ${cid.descricao}`;
-                                        this.open = false;
-                                    }
-                                }" 
-                                @click.away="open = false" 
-                                class="relative">
-                                
-                                <x-input-label for="cid" :value="__('CID (pesquise por código ou nome)')" />
-                                <x-text-input 
-                                    id="cid" 
-                                    class="block mt-1 w-full" 
-                                    type="text" 
-                                    name="cid" 
-                                    x-model="searchTerm" 
-                                    @input.debounce.500ms="fetchResults()"
-                                    @focus="if(results.length > 0) open = true"
-                                    autocomplete="off"
-                                    required
-                                />
-                                <span x-show="loading" class="text-sm text-gray-500 absolute -bottom-5 left-0">Buscando...</span>
-
-                                <div x-show="open" x-transition class="absolute z-10 w-full bg-white dark:bg-gray-800 border rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto">
-                                    <template x-for="result in results" :key="result.codigo">
-                                        <div @click="selectCid(result)" 
-                                             class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                                            <span class="font-bold" x-text="result.codigo"></span>
-                                            <span class="text-sm text-gray-600 dark:text-gray-400" x-text="` - ${result.descricao}`"></span>
-                                        </div>
-                                    </template>
-                                    <div x-show="!loading && results.length === 0 && searchTerm.length > 1" class="p-3 text-sm text-gray-500">
-                                        Nenhum resultado encontrado.
-                                    </div>
-                                </div>
+                            {{-- CAMPO DE CID SIMPLIFICADO --}}
+                            <div>
+                                <x-input-label for="cid" :value="__('CID (Código Internacional de Doenças)')" />
+                                <x-text-input id="cid" class="block mt-1 w-full" type="text" name="cid" :value="old('cid')" required />
                             </div>
                         </div>
 
