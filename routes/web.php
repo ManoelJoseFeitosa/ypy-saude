@@ -15,7 +15,7 @@ use App\Http\Controllers\Paciente\DashboardController as PacienteDashboardContro
 use App\Http\Controllers\Paciente\DocumentoController;
 use App\Http\Controllers\Paciente\AgendamentoController;
 use App\Http\Controllers\EHRTestController;
-use App\Http\Controllers\MercadoPagoController; // ADICIONADO
+use App\Http\Controllers\MercadoPagoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,8 +27,8 @@ Route::get('/contato', [LandingPageController::class, 'contato'])->name('contato
 Route::get('/planos', [LandingPageController::class, 'planos'])->name('planos');
 Route::get('/termos-de-uso', [LandingPageController::class, 'termos'])->name('termos');
 
-// Rota pública para buscar médicos no cadastro
-Route::get('/api/medicos-search', [ApiProxyController::class, 'searchMedicos'])->name('api.medicos.search');
+// Rota pública para buscar médicos no cadastro (movida para api.php se for o caso)
+// Route::get('/api/medicos-search', [ApiProxyController::class, 'searchMedicos'])->name('api.medicos.search');
 
 // Rotas de Validação
 Route::get('/validar/prescricao/{hash}', [ValidacaoController::class, 'show'])->setDefaults(['tipo' => 'prescricao'])->name('prescricao.validar.show');
@@ -41,7 +41,7 @@ Route::get('/ehr/paciente/{id}', [EHRTestController::class, 'show'])->name('ehr.
 
 /*
 |--------------------------------------------------------------------------
-| Rotas de Pagamentos e Assinaturas (Mercado Pago) - ADICIONADO
+| Rotas de Pagamentos e Assinaturas (Mercado Pago)
 |--------------------------------------------------------------------------
 */
 // Rota para onde o médico é redirecionado após o pré-cadastro
@@ -51,8 +51,7 @@ Route::get('/subscribe/checkout/{user}', [MercadoPagoController::class, 'checkou
 Route::get('/subscribe/success', [MercadoPagoController::class, 'success'])->name('subscribe.success');
 Route::get('/subscribe/failure', [MercadoPagoController::class, 'failure'])->name('subscribe.failure');
 
-// Rota para o Webhook (notificação do servidor do Mercado Pago)
-Route::post('/mercadopago/webhook', [MercadoPagoController::class, 'webhook'])->name('mercadopago.webhook');
+// A ROTA DO WEBHOOK FOI MOVIDA PARA routes/api.php
 
 
 /*
@@ -60,61 +59,59 @@ Route::post('/mercadopago/webhook', [MercadoPagoController::class, 'webhook'])->
 | Rotas Protegidas (Exigem Login)
 |--------------------------------------------------------------------------
 */
-Route::get('/dashboard', function () {
-    if (auth()->user()->tipo === 'medico') {
-        return redirect()->route('medico.dashboard');
-    }
-    return redirect()->route('paciente.dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        if (auth()->user()->tipo === 'medico') {
+            return redirect()->route('medico.dashboard');
+        }
+        return redirect()->route('paciente.dashboard');
+    })->name('dashboard');
 
-// Rotas do Médico
-Route::middleware(['auth', 'verified', 'can:is-medico'])->prefix('medico')->name('medico.')->group(function () {
-    Route::get('/dashboard', [MedicoDashboardController::class, 'index'])->name('dashboard');
-    
-    Route::get('/prescricoes/nova', [PrescricaoController::class, 'create'])->name('prescricoes.create');
-    Route::post('/prescricoes', [PrescricaoController::class, 'store'])->name('prescricoes.store');
-    Route::get('/prescricoes/{prescricao}', [PrescricaoController::class, 'show'])->name('prescricoes.show');
-    Route::get('/prescricoes/{prescricao}/pdf', [PrescricaoController::class, 'gerarPdf'])->name('prescricoes.pdf');
+    // Rotas do Médico
+    Route::middleware('can:is-medico')->prefix('medico')->name('medico.')->group(function () {
+        Route::get('/dashboard', [MedicoDashboardController::class, 'index'])->name('dashboard');
+        
+        Route::get('/prescricoes/nova', [PrescricaoController::class, 'create'])->name('prescricoes.create');
+        Route::post('/prescricoes', [PrescricaoController::class, 'store'])->name('prescricoes.store');
+        Route::get('/prescricoes/{prescricao}', [PrescricaoController::class, 'show'])->name('prescricoes.show');
+        Route::get('/prescricoes/{prescricao}/pdf', [PrescricaoController::class, 'gerarPdf'])->name('prescricoes.pdf');
 
-    Route::get('/atestados/novo', [AtestadoController::class, 'create'])->name('atestados.create');
-    Route::post('/atestados', [AtestadoController::class, 'store'])->name('atestados.store');
-    Route::get('/atestados/{atestado}/pdf', [AtestadoController::class, 'gerarPdf'])->name('atestados.pdf');
+        Route::get('/atestados/novo', [AtestadoController::class, 'create'])->name('atestados.create');
+        Route::post('/atestados', [AtestadoController::class, 'store'])->name('atestados.store');
+        Route::get('/atestados/{atestado}/pdf', [AtestadoController::class, 'gerarPdf'])->name('atestados.pdf');
 
-    Route::get('/laudos/novo', [LaudoController::class, 'create'])->name('laudos.create');
-    Route::post('/laudos', [LaudoController::class, 'store'])->name('laudos.store');
-    Route::get('/laudos/{laudo}/pdf', [LaudoController::class, 'gerarPdf'])->name('laudos.pdf');
+        Route::get('/laudos/novo', [LaudoController::class, 'create'])->name('laudos.create');
+        Route::post('/laudos', [LaudoController::class, 'store'])->name('laudos.store');
+        Route::get('/laudos/{laudo}/pdf', [LaudoController::class, 'gerarPdf'])->name('laudos.pdf');
 
-    Route::get('/pacientes', [PacienteController::class, 'index'])->name('pacientes.index');
-    Route::get('/pacientes/{paciente}', [PacienteController::class, 'show'])->name('pacientes.show');
-    Route::post('/pacientes/{paciente}/prontuario', [PacienteController::class, 'storeProntuario'])->name('pacientes.prontuario.store');
+        Route::get('/pacientes', [PacienteController::class, 'index'])->name('pacientes.index');
+        Route::get('/pacientes/{paciente}', [PacienteController::class, 'show'])->name('pacientes.show');
+        Route::post('/pacientes/{paciente}/prontuario', [PacienteController::class, 'storeProntuario'])->name('pacientes.prontuario.store');
 
-    Route::get('/horarios', [HorarioController::class, 'index'])->name('horarios.index');
-    Route::post('/horarios', [HorarioController::class, 'store'])->name('horarios.store');
-    Route::delete('/horarios/{horario}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
+        Route::get('/horarios', [HorarioController::class, 'index'])->name('horarios.index');
+        Route::post('/horarios', [HorarioController::class, 'store'])->name('horarios.store');
+        Route::delete('/horarios/{horario}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
+    });
 
-    Route::get('/api/cid-search', [ApiProxyController::class, 'searchCid'])->name('api.cid.search');
-    Route::get('/api/medicamentos-search', [ApiProxyController::class, 'searchMedicamentos'])->name('api.medicamentos.search');
-});
+    // Rotas do Paciente
+    Route::middleware('can:is-paciente')->prefix('paciente')->name('paciente.')->group(function () {
+        Route::get('/dashboard', [PacienteDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/documentos/{tipo}/{id}', [DocumentoController::class, 'show'])->name('documentos.show');
+    });
 
-// Rotas do Paciente
-Route::middleware(['auth', 'verified', 'can:is-paciente'])->prefix('paciente')->name('paciente.')->group(function () {
-    Route::get('/dashboard', [PacienteDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/documentos/{tipo}/{id}', [DocumentoController::class, 'show'])->name('documentos.show');
-});
+    // Rotas para Agendamento pelo Paciente
+    Route::middleware('can:is-paciente')->prefix('agendamento')->name('agendamento.')->group(function () {
+        Route::get('/', [AgendamentoController::class, 'index'])->name('index');
+        Route::get('/medico/{medico}', [AgendamentoController::class, 'show'])->name('show');
+        Route::get('/medico/{medico}/horarios', [AgendamentoController::class, 'fetchHorarios'])->name('fetchHorarios');
+        Route::post('/medico/{medico}', [AgendamentoController::class, 'store'])->name('store');
+    });
 
-// Rotas para Agendamento pelo Paciente
-Route::middleware(['auth', 'verified', 'can:is-paciente'])->prefix('agendamento')->name('agendamento.')->group(function () {
-    Route::get('/', [AgendamentoController::class, 'index'])->name('index');
-    Route::get('/medico/{medico}', [AgendamentoController::class, 'show'])->name('show');
-    Route::get('/medico/{medico}/horarios', [AgendamentoController::class, 'fetchHorarios'])->name('fetchHorarios');
-    Route::post('/medico/{medico}', [AgendamentoController::class, 'store'])->name('store');
-});
-
-// Rotas de Perfil do Usuário
-Route::middleware('auth')->group(function () {
+    // Rotas de Perfil do Usuário
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
 
 require __DIR__.'/auth.php';
