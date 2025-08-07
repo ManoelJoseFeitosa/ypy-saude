@@ -19,8 +19,6 @@ class PrescricaoController extends Controller
 {
     protected $zapsignController;
 
-    // --- CONSTRUTOR ADICIONADO ---
-    // Injeta o ZapSignController para que possamos usar seus métodos
     public function __construct(ZapSignController $zapsignController)
     {
         $this->zapsignController = $zapsignController;
@@ -61,7 +59,6 @@ class PrescricaoController extends Controller
             'data_prescricao' => now(),
             'tipo' => $validated['tipo'],
             'hash_validacao' => (string) Str::uuid(),
-            // O status padrão 'pendente' já é definido na migration
         ]);
 
         // 3. Loop para salvar cada um dos medicamentos
@@ -84,33 +81,34 @@ class PrescricaoController extends Controller
             \Log::error('Falha ao enviar e-mail de notificação de prescrição: ' . $e->getMessage());
         }
 
-        // --- INÍCIO DO NOVO FLUXO DE ASSINATURA DIGITAL ---
+        // --- FLUXO DE ASSINATURA ATUALIZADO ---
 
-        // 5. Gere o PDF da prescrição e salve-o temporariamente no servidor
-        $pdf = Pdf::loadView('pdf.prescricao', ['prescricao' => $prescricao]);
+        // 5. Gere a URL de validação para o QR Code
+        $validationUrl = route('prescricao.validar.show', ['hash' => $prescricao->hash_validacao]);
+
+        // 6. Gere o PDF da prescrição, passando a URL de validação para a view
+        $pdf = Pdf::loadView('pdf.prescricao', [
+            'prescricao' => $prescricao,
+            'validationUrl' => $validationUrl // Passa a URL para o PDF
+        ]);
         $pdfContent = $pdf->output();
-        // Define um caminho único para o arquivo
         $documentPath = 'prescricoes/prescricao-' . $prescricao->id . '-' . time() . '.pdf';
         Storage::disk('local')->put($documentPath, $pdfContent);
 
-        // 6. Chame o ZapSignController para enviar o documento para assinatura
+        // 7. Chame o ZapSignController para enviar o documento para assinatura
         $signer = Auth::user(); // O médico logado é o assinante
         $signUrl = $this->zapsignController->sendDocumentForSignature(
             $documentPath,
             $signer,
-            $prescricao // Passa o objeto da prescrição para salvar o zapsign_token
+            $prescricao
         );
 
-        // 7. Se a URL de assinatura foi criada, redirecione o médico para lá
+        // 8. Se a URL de assinatura foi criada, redirecione o médico para lá
         if ($signUrl) {
-            // Após o envio, podemos apagar o arquivo local temporário
             Storage::disk('local')->delete($documentPath);
-            
-            // Redireciona o médico para a página de assinatura da ZapSign
             return redirect()->away($signUrl);
         }
 
-        // Se houver um erro na integração com a ZapSign, volte com uma mensagem de erro
         return redirect()->route('medico.dashboard')->with('error', 'Prescrição criada, mas falha ao enviar para assinatura. Por favor, contate o suporte.');
     }
 
@@ -119,7 +117,6 @@ class PrescricaoController extends Controller
      */
     public function show(Prescricao $prescricao)
     {
-        // ... (seu código aqui, sem alterações)
         if (Auth::id() !== $prescricao->medico_id) {
             abort(403);
         }
@@ -134,13 +131,18 @@ class PrescricaoController extends Controller
     */
     public function gerarPdf(Prescricao $prescricao)
     {
-        // ... (seu código aqui, sem alterações)
         if (Auth::id() !== $prescricao->medico_id) {
             abort(403);
         }
         $prescricao->load(['paciente.pacienteProfile', 'medico.medicoProfile', 'medicamentos']);
+        
+        // CORREÇÃO APLICADA AQUI TAMBÉM
+        // Gera a URL de validação para passar para o PDF
+        $validationUrl = route('prescricao.validar.show', ['hash' => $prescricao->hash_validacao]);
+
         $pdf = Pdf::loadView('pdf.prescricao', [
-            'prescricao' => $prescricao
+            'prescricao' => $prescricao,
+            'validationUrl' => $validationUrl
         ]);
         return $pdf->stream('prescricao-'.$prescricao->id.'.pdf');
     }

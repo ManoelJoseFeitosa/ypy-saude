@@ -2,49 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use App\Models\Prescricao;
 use App\Models\Atestado;
 use App\Models\Laudo;
-use App\Models\Prescricao;
-use Illuminate\Http\Request;
 
 class ValidacaoController extends Controller
 {
     /**
-     * Mostra um documento para validação pública.
+     * Mostra a página de validação pública para um documento.
      */
-    public function show($tipo, $hash)
+    public function show(Request $request, string $tipo, string $hash)
     {
-        $modelMap = [
-            'prescricao' => Prescricao::class,
-            'atestado' => Atestado::class,
-            'laudo' => Laudo::class,
-        ];
+        $documento = null;
 
-        if (!isset($modelMap[$tipo])) {
-            abort(404);
+        // Encontra o documento correto com base no tipo, já carregando os dados relacionados
+        switch ($tipo) {
+            case 'prescricao':
+                $documento = Prescricao::where('hash_validacao', $hash)
+                    ->with(['medico.medicoProfile', 'paciente'])
+                    ->firstOrFail(); // firstOrFail() já retorna 404 se não encontrar
+                break;
+            case 'atestado':
+                $documento = Atestado::where('hash_validacao', $hash)
+                    ->with(['medico.medicoProfile', 'paciente'])
+                    ->firstOrFail();
+                break;
+            case 'laudo':
+                $documento = Laudo::where('hash_validacao', $hash)
+                    ->with(['medico.medicoProfile', 'paciente'])
+                    ->firstOrFail();
+                break;
+            default:
+                abort(404); // Se o tipo for inválido, retorna 404
         }
 
-        $model = $modelMap[$tipo];
-        $documento = $model::where('hash_validacao', $hash)->firstOrFail();
-        
-        $documento->load(['paciente.pacienteProfile', 'medico.medicoProfile']);
-        
-        if ($tipo === 'prescricao') {
-            $documento->load('medicamentos');
-        }
-
-        // Reutiliza a view de detalhes do médico para exibir o documento validado
-        if ($tipo === 'prescricao') {
-            // Futuramente, podemos criar uma view pública específica para validação.
-            return view('medico.prescricoes.show', ['prescricao' => $documento]);
-        } elseif ($tipo === 'atestado') {
-            // Para atestados e laudos, podemos criar uma view de validação simples
-            // ou redirecionar para o PDF. Por enquanto, vamos redirecionar para o PDF.
-            return redirect()->route('medico.atestados.pdf', $documento);
-        } elseif ($tipo === 'laudo') {
-            return redirect()->route('medico.laudos.pdf', $documento);
-        }
-
-        abort(404);
+        // Passa o documento e o tipo para a view de validação pública
+        return view('validacao.show', [
+            'documento' => $documento,
+            'tipo' => $tipo,
+        ]);
     }
 }
