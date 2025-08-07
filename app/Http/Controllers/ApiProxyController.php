@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Log;
 class ApiProxyController extends Controller
 {
     /**
-     * ---- MÉTODO ATUALIZADO ----
      * Busca por códigos CID em uma API externa.
      */
     public function searchCid(Request $request)
@@ -22,19 +21,18 @@ class ApiProxyController extends Controller
         }
 
         try {
-            // Usamos uma API pública para buscar códigos da CID-10
-            $response = Http::get("https://cid.api.mokasoft.org/cid10/search/{$searchTerm}");
+            // Adicionada a diretiva withoutVerifying() para evitar problemas de SSL
+            $response = Http::withoutVerifying()->get("https://cid.api.mokasoft.org/cid10/search/{$searchTerm}");
 
             if (!$response->successful()) {
                 Log::error('Falha na API de CID: ', $response->json());
                 return response()->json(['error' => 'Serviço de busca de CID indisponível'], 500);
             }
 
-            // A API retorna um array de objetos, vamos formatá-lo para o nosso frontend
             $results = collect($response->json())->map(function ($item) {
                 return [
                     'codigo' => $item->codigo,
-                    'descricao' => $item->nome, // Renomeia 'nome' para 'descricao'
+                    'descricao' => $item->nome,
                 ];
             });
 
@@ -42,7 +40,7 @@ class ApiProxyController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Exceção na busca de CID: ' . $e->getMessage());
-            return response()->json(['error' => 'Ocorreu um erro interno'], 500);
+            return response()->json(['error' => 'Ocorreu um erro interno na busca de CID'], 500);
         }
     }
 
@@ -58,14 +56,16 @@ class ApiProxyController extends Controller
         }
 
         try {
-            $response = Http::get('https://bula.io/api/search/medicamentos', [
+            // ---- CORREÇÃO APLICADA AQUI ----
+            // Adicionada a diretiva withoutVerifying() para evitar problemas de SSL
+            $response = Http::withoutVerifying()->get('https://bula.io/api/search/medicamentos', [
                 'nome' => $searchTerm,
                 'num_docs' => 15
             ]);
 
             if (!$response->successful()) {
                 Log::error('Falha na API de medicamentos: ', $response->json());
-                return response()->json(['error' => 'Serviço de busca indisponível'], 500);
+                return response()->json(['error' => 'Serviço de busca de medicamentos indisponível'], 500);
             }
 
             $results = $response->json()['results'];
@@ -78,7 +78,7 @@ class ApiProxyController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Exceção na busca de medicamentos: ' . $e->getMessage());
-            return response()->json(['error' => 'Ocorreu um erro interno'], 500);
+            return response()->json(['error' => 'Ocorreu um erro interno na busca de medicamentos'], 500);
         }
     }
 
@@ -87,6 +87,7 @@ class ApiProxyController extends Controller
      */
     public function searchMedicos(Request $request)
     {
+        // ... (seu código aqui, sem alterações)
         try {
             $query = $request->input('q');
 

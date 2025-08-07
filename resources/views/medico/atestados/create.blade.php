@@ -13,6 +13,7 @@
                     <form method="POST" action="{{ route('medico.prescricoes.store') }}">
                         @csrf
 
+                        {{-- ... (código do seletor de paciente e tipo de receita) ... --}}
                         <!-- Seletor de Paciente -->
                         <div class="mb-6">
                             <x-input-label for="paciente_id" :value="__('Selecione o Paciente')" />
@@ -49,22 +50,33 @@
                             {{-- Bloco de Medicamento 1 (template) --}}
                             <div class="medicamento-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
                                 
-                                {{-- CAMPO DE BUSCA DE MEDICAMENTO ATUALIZADO --}}
+                                {{-- CAMPO DE BUSCA DE MEDICAMENTO ATUALIZADO COM TRATAMENTO DE ERRO --}}
                                 <div x-data="{ 
                                         searchTerm: '', 
                                         results: [], 
+                                        error: '', // Nova propriedade para guardar o erro
                                         loading: false,
                                         open: false,
                                         fetchResults() {
                                             if (this.searchTerm.length < 3) { this.results = []; this.open = false; return; }
                                             this.loading = true;
+                                            this.error = ''; // Limpa o erro anterior
                                             fetch(`{{ route('api.medicamentos.search') }}?term=${this.searchTerm}`)
                                                 .then(response => response.json())
                                                 .then(data => {
-                                                    this.results = data;
+                                                    if (data.error) {
+                                                        this.error = data.error; // Se a API retornar um erro, guarda na variável
+                                                        this.results = [];
+                                                    } else {
+                                                        this.results = data; // Se for sucesso, guarda os resultados
+                                                    }
                                                     this.loading = false;
                                                     this.open = true;
-                                                }).catch(() => { this.loading = false; this.open = false; });
+                                                }).catch(() => {
+                                                    this.error = 'Falha de comunicação com o servidor.';
+                                                    this.loading = false;
+                                                    this.open = true;
+                                                });
                                         },
                                         selectMedicamento(medicamento) {
                                             this.searchTerm = medicamento;
@@ -77,16 +89,25 @@
                                     <span x-show="loading" class="text-sm text-gray-500">Buscando...</span>
 
                                     <div x-show="open" x-transition class="absolute z-10 w-full bg-white dark:bg-gray-800 border rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto">
-                                        <template x-for="medicamento in results" :key="medicamento">
-                                            <div @click="selectMedicamento(medicamento)" class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                                                <span class="font-bold" x-text="medicamento"></span>
+                                        {{-- Exibe a mensagem de erro se houver uma --}}
+                                        <div x-show="error" x-text="error" class="p-3 text-sm text-red-600"></div>
+
+                                        {{-- Exibe os resultados apenas se não houver erro --}}
+                                        <template x-if="!error">
+                                            <div>
+                                                <template x-for="medicamento in results" :key="medicamento">
+                                                    <div @click="selectMedicamento(medicamento)" class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                                                        <span class="font-bold" x-text="medicamento"></span>
+                                                    </div>
+                                                </template>
+                                                <div x-show="!loading && results.length === 0 && searchTerm.length > 2" class="p-3 text-sm text-gray-500">Nenhum resultado encontrado.</div>
                                             </div>
                                         </template>
-                                        <div x-show="!loading && results.length === 0 && searchTerm.length > 2" class="p-3 text-sm text-gray-500">Nenhum resultado encontrado.</div>
                                     </div>
                                 </div>
                                 {{-- FIM DO CAMPO DE BUSCA --}}
 
+                                {{-- ... (resto do formulário do medicamento) ... --}}
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <x-input-label for="medicamentos[0][dosagem]" :value="__('Dosagem (ex: 500mg)')" />
@@ -117,31 +138,26 @@
 </x-app-layout>
 
 <script>
+// ... (seu script para adicionar/remover medicamentos, sem alterações) ...
 document.addEventListener('DOMContentLoaded', function () {
     const addButton = document.getElementById('add-medicamento-btn');
     const container = document.getElementById('medicamentos-container');
-    // Pega o primeiro item como template
     const template = container.querySelector('.medicamento-item').cloneNode(true);
     let medicamentoIndex = 1;
 
     addButton.addEventListener('click', () => {
         const newItem = template.cloneNode(true);
         
-        // Adiciona um botão de remover apenas aos itens clonados
         const removeButton = document.createElement('button');
         removeButton.type = 'button';
         removeButton.innerHTML = 'Remover';
         removeButton.className = 'mt-2 px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 self-end';
-        // Insere o botão antes dos outros campos para melhor layout
         newItem.insertBefore(removeButton, newItem.firstChild);
 
         newItem.querySelectorAll('[name]').forEach(element => {
             const name = element.getAttribute('name');
             if (name) {
-                // Atualiza o índice do array no nome do campo (ex: medicamentos[0] -> medicamentos[1])
                 element.setAttribute('name', name.replace(/\[0\]/, `[${medicamentoIndex}]`));
-                
-                // Limpa os valores dos campos clonados
                 if (element.tagName === 'TEXTAREA') {
                     element.value = '';
                 } else if (element.type !== 'hidden') {
@@ -151,14 +167,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         
         container.appendChild(newItem);
-        
-        // CORREÇÃO CRUCIAL: Inicializa o Alpine.js no novo bloco clonado
         window.Alpine.initTree(newItem);
-
         medicamentoIndex++;
     });
 
-    // Delegação de evento para o botão de remover
     container.addEventListener('click', function(e) {
         if (e.target && e.target.tagName == 'BUTTON' && e.target.innerHTML === 'Remover') {
             e.target.closest('.medicamento-item').remove();
