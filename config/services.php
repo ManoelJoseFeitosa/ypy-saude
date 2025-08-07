@@ -33,9 +33,9 @@ return [
         'token' => env('MERCADOPAGO_TOKEN'),
     ],
 
-    // --- BLOCO ADICIONADO ---
     'zapsign' => [
-        'token' => env('ZAPSIGN_TOKEN'),
+    // O token está agora diretamente no código, em vez de no .env
+    'token' => '2478e1e9-4350-4a27-9087-27773b194eaac3d71ab6-3be1-4139-b0e3-bf0a73c44f42',
     ],
 
 ];
