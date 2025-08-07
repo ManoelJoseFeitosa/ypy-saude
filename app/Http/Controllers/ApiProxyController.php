@@ -4,43 +4,82 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log; // Importa a classe de Log
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ApiProxyController extends Controller
 {
     /**
-     * Busca por códigos CID usando uma lista interna para desenvolvimento.
+     * ---- MÉTODO ATUALIZADO ----
+     * Busca por códigos CID em uma API externa.
      */
     public function searchCid(Request $request)
     {
-        $query = strtolower($request->input('q', ''));
-        if (strlen($query) < 2) { return response()->json([]); }
-        $localCidList = [
-            ['codigo' => 'A09', 'descricao' => 'Diarreia e gastroenterite de origem infecciosa presumível'],
-            ['codigo' => 'J11', 'descricao' => 'Influenza (gripe) com vírus não identificado'],
-            ['codigo' => 'R51', 'descricao' => 'Cefaleia (dor de cabeça)'],
-        ];
-        $results = array_filter($localCidList, function ($item) use ($query) {
-            return str_contains(strtolower($item['codigo']), $query) || str_contains(strtolower($item['descricao']), $query);
-        });
-        return response()->json(array_values($results));
+        $searchTerm = $request->query('term');
+
+        if (!$searchTerm || strlen($searchTerm) < 2) {
+            return response()->json([]);
+        }
+
+        try {
+            // Usamos uma API pública para buscar códigos da CID-10
+            $response = Http::get("https://cid.api.mokasoft.org/cid10/search/{$searchTerm}");
+
+            if (!$response->successful()) {
+                Log::error('Falha na API de CID: ', $response->json());
+                return response()->json(['error' => 'Serviço de busca de CID indisponível'], 500);
+            }
+
+            // A API retorna um array de objetos, vamos formatá-lo para o nosso frontend
+            $results = collect($response->json())->map(function ($item) {
+                return [
+                    'codigo' => $item->codigo,
+                    'descricao' => $item->nome, // Renomeia 'nome' para 'descricao'
+                ];
+            });
+
+            return response()->json($results);
+
+        } catch (\Exception $e) {
+            Log::error('Exceção na busca de CID: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocorreu um erro interno'], 500);
+        }
     }
 
     /**
-     * Busca por medicamentos usando uma lista interna para desenvolvimento.
+     * Busca por medicamentos em uma API externa (bula.io) e retorna apenas os nomes.
      */
     public function searchMedicamentos(Request $request)
     {
-        $query = strtolower($request->input('q', ''));
-        if (strlen($query) < 3) { return response()->json([]); }
-        $localMedicamentosList = [
-            ['id' => 1, 'nomeProduto' => 'Dipirona Sódica 500mg', 'empresa' => 'Medley'],
-            ['id' => 2, 'nomeProduto' => 'Paracetamol 750mg', 'empresa' => 'EMS'],
-        ];
-        $results = array_filter($localMedicamentosList, function ($item) use ($query) {
-            return str_contains(strtolower($item['nomeProduto']), $query);
-        });
-        return response()->json(array_values($results));
+        $searchTerm = $request->query('term');
+
+        if (!$searchTerm || strlen($searchTerm) < 3) {
+            return response()->json([]);
+        }
+
+        try {
+            $response = Http::get('https://bula.io/api/search/medicamentos', [
+                'nome' => $searchTerm,
+                'num_docs' => 15
+            ]);
+
+            if (!$response->successful()) {
+                Log::error('Falha na API de medicamentos: ', $response->json());
+                return response()->json(['error' => 'Serviço de busca indisponível'], 500);
+            }
+
+            $results = $response->json()['results'];
+
+            $medicamentos = collect($results)->map(function ($medicamento) {
+                return $medicamento['nome'];
+            })->unique()->values();
+
+            return response()->json($medicamentos);
+
+        } catch (\Exception $e) {
+            Log::error('Exceção na busca de medicamentos: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocorreu um erro interno'], 500);
+        }
     }
 
     /**
@@ -55,18 +94,16 @@ class ApiProxyController extends Controller
                 return response()->json([]);
             }
 
-            // Busca apenas médicos que tenham um perfil associado, para evitar erros
             $medicos = User::where('tipo', 'medico')
-                           ->whereHas('medicoProfile') // Garante que o médico tem perfil
-                           ->where('name', 'LIKE', "%{$query}%")
-                           ->with('medicoProfile') // Carrega o perfil para mostrar o CRM
-                           ->limit(10)
-                           ->get();
+                            ->whereHas('medicoProfile')
+                            ->where('name', 'LIKE', "%{$query}%")
+                            ->with('medicoProfile')
+                            ->limit(10)
+                            ->get();
 
             return response()->json($medicos);
 
         } catch (\Exception $e) {
-            // Se qualquer erro acontecer, regista no log e retorna uma lista vazia
             Log::error('Erro ao buscar médicos: ' . $e->getMessage());
             return response()->json([], 500);
         }

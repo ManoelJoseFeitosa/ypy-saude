@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MercadoPagoController;
 use App\Http\Controllers\ZapSignController;
+use App\Http\Controllers\ApiProxyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,3 +27,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/mercadopago/webhook', [MercadoPagoController::class, 'webhook'])->name('mercadopago.webhook');
 
 Route::post('/zapsign/webhook', [ZapSignController::class, 'webhook'])->name('zapsign.webhook');
+
+Route::get('/medicamentos/search', [ApiProxyController::class, 'searchMedicamentos'])->name('api.medicamentos.search');
