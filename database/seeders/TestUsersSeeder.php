@@ -19,7 +19,7 @@ class TestUsersSeeder extends Seeder
         $medico = User::create([
             'name' => 'Dr. House',
             'email' => 'house@exemplo.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('12345678'),
             'tipo' => 'medico',
             'status' => 'ativo', // <-- A MÁGICA ACONTECE AQUI
             'terms_accepted_at' => now(),
@@ -36,7 +36,7 @@ class TestUsersSeeder extends Seeder
         $paciente1 = User::create([
             'name' => 'Maria Silva',
             'email' => 'maria@exemplo.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('12345678'),
             'tipo' => 'paciente',
             'status' => 'ativo',
             'terms_accepted_at' => now(),
@@ -51,7 +51,7 @@ class TestUsersSeeder extends Seeder
         $paciente2 = User::create([
             'name' => 'João Souza',
             'email' => 'joao@exemplo.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('12345678'),
             'tipo' => 'paciente',
             'status' => 'ativo',
             'terms_accepted_at' => now(),
