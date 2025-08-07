@@ -10,13 +10,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
-
-// --- Imports adicionados para o envio de e-mail ---
 use Illuminate\Support\Facades\Mail;
 use App\Mail\DocumentoMedicoDisponivel;
+use App\Http\Controllers\ZapSignController;
+use Illuminate\Support\Facades\Storage;
 
 class PrescricaoController extends Controller
 {
+    protected $zapsignController;
+
+    // --- CONSTRUTOR ADICIONADO ---
+    // Injeta o ZapSignController para que possamos usar seus métodos
+    public function __construct(ZapSignController $zapsignController)
+    {
+        $this->zapsignController = $zapsignController;
+    }
+
     /**
      * Mostra o formulário para criar uma nova prescrição.
      */
@@ -30,14 +39,14 @@ class PrescricaoController extends Controller
     }
 
     /**
-     * Salva a nova prescrição no banco de dados.
+     * Salva a nova prescrição e a envia para assinatura digital.
      */
     public function store(Request $request): RedirectResponse
     {
         // 1. Validação dos dados que chegam do formulário
         $validated = $request->validate([
             'paciente_id' => ['required', 'exists:users,id'],
-            'tipo' => ['required', 'string', 'in:simples,especial,amarela,azul'], // Validação para o tipo
+            'tipo' => ['required', 'string', 'in:simples,especial,amarela,azul'],
             'medicamentos' => ['required', 'array', 'min:1'],
             'medicamentos.*.nome_medicamento' => ['required', 'string', 'max:255'],
             'medicamentos.*.dosagem' => ['required', 'string', 'max:255'],
@@ -47,47 +56,62 @@ class PrescricaoController extends Controller
 
         // 2. Criação da Prescrição "Cabeçalho"
         $prescricao = Prescricao::create([
-            'medico_id' => Auth::id(), // Pega o ID do médico logado
+            'medico_id' => Auth::id(),
             'paciente_id' => $validated['paciente_id'],
-            'data_prescricao' => now(), // Define a data e hora atuais
-            'tipo' => $validated['tipo'], // Salva o tipo de receita
+            'data_prescricao' => now(),
+            'tipo' => $validated['tipo'],
             'hash_validacao' => (string) Str::uuid(),
+            // O status padrão 'pendente' já é definido na migration
         ]);
 
         // 3. Loop para salvar cada um dos medicamentos
         foreach ($validated['medicamentos'] as $medicamentoData) {
-            $prescricao->medicamentos()->create([
-                'nome_medicamento' => $medicamentoData['nome_medicamento'],
-                'dosagem' => $medicamentoData['dosagem'],
-                'quantidade' => $medicamentoData['quantidade'],
-                'posologia' => $medicamentoData['posologia'],
-            ]);
+            $prescricao->medicamentos()->create($medicamentoData);
         }
+        
+        // Carrega os relacionamentos necessários para o PDF e e-mail
+        $prescricao->load(['paciente', 'medico.medicoProfile', 'medicamentos']);
 
-        // --- INÍCIO DO BLOCO DE ENVIO DE E-MAIL ---
+        // 4. Envio de e-mail de notificação para o paciente
         try {
-            // Buscamos os objetos completos do paciente e do médico
-            $paciente = User::find($validated['paciente_id']);
-            $medico = Auth::user(); // Pega o médico logado
-
-            // Dispara o e-mail usando a classe Mailable que criamos
-            Mail::to($paciente->email)->send(new DocumentoMedicoDisponivel(
-                $paciente,
-                $medico,
-                'Prescrição',      // Tipo do documento
-                $prescricao->id    // ID do documento para gerar a URL de visualização
+            Mail::to($prescricao->paciente->email)->send(new DocumentoMedicoDisponivel(
+                $prescricao->paciente,
+                $prescricao->medico,
+                'Prescrição',
+                $prescricao->id
             ));
-
         } catch (\Exception $e) {
-            // Se o envio do e-mail falhar, registra o erro no log, mas não interrompe o fluxo.
-            // Isso é importante para que o médico não receba um erro caso o e-mail não possa ser enviado.
             \Log::error('Falha ao enviar e-mail de notificação de prescrição: ' . $e->getMessage());
         }
-        // --- FIM DO BLOCO DE ENVIO DE E-MAIL ---
 
+        // --- INÍCIO DO NOVO FLUXO DE ASSINATURA DIGITAL ---
 
-        // 4. Redirecionamento com uma mensagem de sucesso
-        return redirect()->route('medico.dashboard')->with('success', 'Prescrição gerada com sucesso!');
+        // 5. Gere o PDF da prescrição e salve-o temporariamente no servidor
+        $pdf = Pdf::loadView('pdf.prescricao', ['prescricao' => $prescricao]);
+        $pdfContent = $pdf->output();
+        // Define um caminho único para o arquivo
+        $documentPath = 'prescricoes/prescricao-' . $prescricao->id . '-' . time() . '.pdf';
+        Storage::disk('local')->put($documentPath, $pdfContent);
+
+        // 6. Chame o ZapSignController para enviar o documento para assinatura
+        $signer = Auth::user(); // O médico logado é o assinante
+        $signUrl = $this->zapsignController->sendDocumentForSignature(
+            $documentPath,
+            $signer,
+            $prescricao // Passa o objeto da prescrição para salvar o zapsign_token
+        );
+
+        // 7. Se a URL de assinatura foi criada, redirecione o médico para lá
+        if ($signUrl) {
+            // Após o envio, podemos apagar o arquivo local temporário
+            Storage::disk('local')->delete($documentPath);
+            
+            // Redireciona o médico para a página de assinatura da ZapSign
+            return redirect()->away($signUrl);
+        }
+
+        // Se houver um erro na integração com a ZapSign, volte com uma mensagem de erro
+        return redirect()->route('medico.dashboard')->with('error', 'Prescrição criada, mas falha ao enviar para assinatura. Por favor, contate o suporte.');
     }
 
     /**
@@ -95,14 +119,11 @@ class PrescricaoController extends Controller
      */
     public function show(Prescricao $prescricao)
     {
-        // Garante que apenas o médico que criou a prescrição possa vê-la
+        // ... (seu código aqui, sem alterações)
         if (Auth::id() !== $prescricao->medico_id) {
-            abort(403); // Acesso negado
+            abort(403);
         }
-
-        // Carrega os dados relacionados para otimização
         $prescricao->load(['paciente.pacienteProfile', 'medico.medicoProfile', 'medicamentos']);
-
         return view('medico.prescricoes.show', [
             'prescricao' => $prescricao
         ]);
@@ -113,20 +134,14 @@ class PrescricaoController extends Controller
     */
     public function gerarPdf(Prescricao $prescricao)
     {
-        // Garante que apenas o médico que criou a prescrição possa gerar o PDF
+        // ... (seu código aqui, sem alterações)
         if (Auth::id() !== $prescricao->medico_id) {
             abort(403);
         }
-
-        // Carrega todos os dados necessários
         $prescricao->load(['paciente.pacienteProfile', 'medico.medicoProfile', 'medicamentos']);
-
-        // Gera o PDF usando a biblioteca e a nossa view de PDF
         $pdf = Pdf::loadView('pdf.prescricao', [
             'prescricao' => $prescricao
         ]);
-
-        // Retorna o PDF para ser exibido no navegador
         return $pdf->stream('prescricao-'.$prescricao->id.'.pdf');
     }
 }

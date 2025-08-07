@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\MercadoPagoController; // Adicionado
+use App\Http\Controllers\MercadoPagoController;
+use App\Http\Controllers\ZapSignController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,3 +24,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // --- ROTA DO WEBHOOK ADICIONADA ---
 // Rota para o Webhook (notificação do servidor do Mercado Pago)
 Route::post('/mercadopago/webhook', [MercadoPagoController::class, 'webhook'])->name('mercadopago.webhook');
+
+Route::post('/zapsign/webhook', [ZapSignController::class, 'webhook'])->name('zapsign.webhook');
