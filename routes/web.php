@@ -27,9 +27,6 @@ Route::get('/contato', [LandingPageController::class, 'contato'])->name('contato
 Route::get('/planos', [LandingPageController::class, 'planos'])->name('planos');
 Route::get('/termos-de-uso', [LandingPageController::class, 'termos'])->name('termos');
 
-// Rota pública para buscar médicos no cadastro (movida para api.php se for o caso)
-// Route::get('/api/medicos-search', [ApiProxyController::class, 'searchMedicos'])->name('api.medicos.search');
-
 // Rotas de Validação
 Route::get('/validar/prescricao/{hash}', [ValidacaoController::class, 'show'])->setDefaults(['tipo' => 'prescricao'])->name('prescricao.validar.show');
 Route::get('/validar/atestado/{hash}', [ValidacaoController::class, 'show'])->setDefaults(['tipo' => 'atestado'])->name('atestado.validar.show');
@@ -44,22 +41,19 @@ Route::get('/ehr/paciente/{id}', [EHRTestController::class, 'show'])->name('ehr.
 | Rotas de Pagamentos e Assinaturas (Mercado Pago)
 |--------------------------------------------------------------------------
 */
-// Rota para onde o médico é redirecionado após o pré-cadastro
 Route::get('/subscribe/checkout/{user}', [MercadoPagoController::class, 'checkout'])->name('mercadopago.checkout');
-
-// Rotas de retorno para o usuário após a tentativa de pagamento
 Route::get('/subscribe/success', [MercadoPagoController::class, 'success'])->name('subscribe.success');
 Route::get('/subscribe/failure', [MercadoPagoController::class, 'failure'])->name('subscribe.failure');
-
-// A ROTA DO WEBHOOK FOI MOVIDA PARA routes/api.php
 
 
 /*
 |--------------------------------------------------------------------------
-| Rotas Protegidas (Exigem Login)
+| Rotas Protegidas (Exigem Login e Verificação de Email)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
+    
+    // Rota principal do Dashboard (redireciona para o painel correto)
     Route::get('/dashboard', function () {
         if (auth()->user()->tipo === 'medico') {
             return redirect()->route('medico.dashboard');
@@ -107,11 +101,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/medico/{medico}', [AgendamentoController::class, 'store'])->name('store');
     });
 
-    // Rotas de Perfil do Usuário
+    // Rotas de Perfil do Usuário (agora dentro do mesmo grupo)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 
+// Rotas de autenticação (login, registro, etc.)
 require __DIR__.'/auth.php';
