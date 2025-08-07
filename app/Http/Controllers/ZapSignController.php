@@ -119,41 +119,68 @@ class ZapSignController extends Controller
         return response()->json(['message' => 'Webhook recebido.'], 200);
     }
 
-    /**
- * Rota de teste para verificar a conexão e o token da API ZapSign.
- */
-public function testConnection()
-{
-    // Verifica se o token foi carregado do .env
-    if (!$this->apiToken) {
-        return "Erro: O ZAPSIGN_TOKEN não está configurado no seu arquivo .env ou a cache de configuração não foi limpa.";
-    }
+/**
+     * Rota de diagnóstico avançado para verificar todo o fluxo de configuração.
+     */
+    public function testConnection()
+    {
+        echo "<h1>Diagnóstico Avançado de Configuração</h1>";
 
-    try {
-        // Tenta fazer uma chamada simples para a API
-        $response = Http::withQueryParameters(['api_token' => $this->apiToken])
-            ->get("{$this->apiUrl}/organizations/");
-
-        if ($response->successful()) {
-            // Se a conexão for bem-sucedida, mostra uma mensagem de sucesso e os dados recebidos
-            echo "<h1>Conexão com a ZapSign bem-sucedida!</h1>";
-            echo "<p>O token da API é válido.</p>";
-            echo "<pre>";
-            print_r($response->json());
-            echo "</pre>";
+        // --- Teste 1: Leitura Direta do .env ---
+        echo "<h2>Teste 1: Leitura Direta do .env</h2>";
+        $envPath = base_path('.env');
+        if (File::exists($envPath) && File::isReadable($envPath)) {
+            $envContent = File::get($envPath);
+            preg_match('/^ZAPSIGN_TOKEN=(.*)$/m', $envContent, $matches);
+            $tokenFromEnv = $matches[1] ?? null;
+            if ($tokenFromEnv) {
+                echo "<p style='color:green;'>SUCESSO: Token encontrado diretamente no .env: <code>" . trim($tokenFromEnv) . "</code></p>";
+            } else {
+                echo "<p style='color:red;'>FALHA: A linha ZAPSIGN_TOKEN não foi encontrada ou está mal formatada no .env.</p>";
+            }
         } else {
-            // Se falhar, mostra o código do erro e a mensagem
-            echo "<h1>Falha na conexão com a ZapSign!</h1>";
-            echo "<p>Código do Erro: " . $response->status() . "</p>";
-            echo "<p>Verifique se o seu token de API está correto e se o seu plano permite acesso à API.</p>";
-            echo "<pre>";
-            print_r($response->json());
-            echo "</pre>";
+            echo "<p style='color:red;'>FALHA: O ficheiro .env não existe ou não pode ser lido.</p>";
         }
 
-    } catch (\Exception $e) {
-        // Se ocorrer um erro de conexão (como o timeout que vimos antes)
-        return "<h1>Erro de Conexão!</h1> <p>Não foi possível conectar ao servidor da ZapSign. Verifique os logs do servidor para mais detalhes. Erro: " . $e->getMessage() . "</p>";
+        // --- Teste 2: Leitura do config/services.php ---
+        echo "<h2>Teste 2: Leitura do config/services.php</h2>";
+        $servicesConfigPath = config_path('services.php');
+        if (File::exists($servicesConfigPath)) {
+            $servicesConfig = require $servicesConfigPath;
+            $zapsignConfig = $servicesConfig['zapsign'] ?? null;
+            if ($zapsignConfig) {
+                echo "<p style='color:green;'>SUCESSO: O bloco 'zapsign' foi encontrado em config/services.php.</p>";
+                $tokenLine = $zapsignConfig['token'] ?? null;
+                if ($tokenLine) {
+                    echo "<p>Valor da chave 'token': <code>" . htmlspecialchars($tokenLine) . "</code></p>";
+                } else {
+                    echo "<p style='color:red;'>FALHA: A chave 'token' não foi encontrada dentro do bloco 'zapsign'.</p>";
+                }
+            } else {
+                echo "<p style='color:red;'>FALHA: O bloco 'zapsign' NÃO foi encontrado em config/services.php.</p>";
+            }
+        } else {
+            echo "<p style='color:red;'>FALHA: O ficheiro config/services.php não foi encontrado.</p>";
+        }
+
+        // --- Teste 3: Leitura via Helper config() do Laravel ---
+        echo "<h2>Teste 3: Leitura via Helper config() do Laravel (O Teste Real)</h2>";
+        $tokenFromConfigHelper = config('services.zapsign.token');
+        if ($tokenFromConfigHelper) {
+            echo "<p style='color:green;'>SUCESSO: O helper config('services.zapsign.token') retornou um valor:</p>";
+            echo "<code>" . $tokenFromConfigHelper . "</code>";
+        } else {
+            echo "<p style='color:red;'>FALHA: O helper config('services.zapsign.token') retornou NULO. Isto confirma que a configuração não está a ser carregada corretamente pela aplicação.</p>";
+        }
+
+        // --- Teste 4: Verificação do Ficheiro de Cache ---
+        echo "<h2>Teste 4: Verificação do Ficheiro de Cache</h2>";
+        $cachePath = app()->getCachedConfigPath();
+        if (File::exists($cachePath)) {
+            echo "<p>O ficheiro de cache de configuração existe em: <code>{$cachePath}</code></p>";
+            echo "<p>Isto significa que o Laravel está a ler a configuração deste ficheiro. O comando `php artisan optimize:clear` ou `rm bootstrap/cache/config.php` deveria apagar este ficheiro.</p>";
+        } else {
+            echo "<p style='color:orange;'>AVISO: O ficheiro de cache de configuração NÃO existe. O Laravel deveria estar a ler os ficheiros de configuração diretamente.</p>";
+        }
     }
-}
 }
