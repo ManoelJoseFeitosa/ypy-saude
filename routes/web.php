@@ -108,7 +108,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Rota para testar a conexão com a API da ZapSign
-Route::get('/test-zapsign', [App\Http\Controllers\ZapSignController::class, 'testConnection'])->name('zapsign.test');
+Route::get('/test-zapsign', [App\Http\Controllers\ZapSignController::class, 'testConnection']);
 
 // Rota para depurar a leitura do ficheiro .env
 Route::get('/debug-env', function () {
