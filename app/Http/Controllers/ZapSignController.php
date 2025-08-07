@@ -118,4 +118,42 @@ class ZapSignController extends Controller
         // Responde ao ZapSign com status 200 OK para confirmar o recebimento
         return response()->json(['message' => 'Webhook recebido.'], 200);
     }
+
+    /**
+ * Rota de teste para verificar a conexão e o token da API ZapSign.
+ */
+public function testConnection()
+{
+    // Verifica se o token foi carregado do .env
+    if (!$this->apiToken) {
+        return "Erro: O ZAPSIGN_TOKEN não está configurado no seu arquivo .env ou a cache de configuração não foi limpa.";
+    }
+
+    try {
+        // Tenta fazer uma chamada simples para a API
+        $response = Http::withQueryParameters(['api_token' => $this->apiToken])
+            ->get("{$this->apiUrl}/organizations/");
+
+        if ($response->successful()) {
+            // Se a conexão for bem-sucedida, mostra uma mensagem de sucesso e os dados recebidos
+            echo "<h1>Conexão com a ZapSign bem-sucedida!</h1>";
+            echo "<p>O token da API é válido.</p>";
+            echo "<pre>";
+            print_r($response->json());
+            echo "</pre>";
+        } else {
+            // Se falhar, mostra o código do erro e a mensagem
+            echo "<h1>Falha na conexão com a ZapSign!</h1>";
+            echo "<p>Código do Erro: " . $response->status() . "</p>";
+            echo "<p>Verifique se o seu token de API está correto e se o seu plano permite acesso à API.</p>";
+            echo "<pre>";
+            print_r($response->json());
+            echo "</pre>";
+        }
+
+    } catch (\Exception $e) {
+        // Se ocorrer um erro de conexão (como o timeout que vimos antes)
+        return "<h1>Erro de Conexão!</h1> <p>Não foi possível conectar ao servidor da ZapSign. Verifique os logs do servidor para mais detalhes. Erro: " . $e->getMessage() . "</p>";
+    }
+}
 }

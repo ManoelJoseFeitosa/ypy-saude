@@ -107,6 +107,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Rota para testar a conexão com a API da ZapSign
+Route::get('/test-zapsign', [App\Http\Controllers\ZapSignController::class, 'testConnection'])->name('zapsign.test');
+
 
 // Rotas de autenticação (login, registro, etc.)
 require __DIR__.'/auth.php';
