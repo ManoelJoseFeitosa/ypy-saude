@@ -21,7 +21,7 @@ class ValidacaoController extends Controller
             case 'prescricao':
                 $documento = Prescricao::where('hash_validacao', $hash)
                     ->with(['medico.medicoProfile', 'paciente'])
-                    ->firstOrFail(); // firstOrFail() já retorna 404 se não encontrar
+                    ->firstOrFail(); // firstOrFail() retorna 404 automaticamente se não encontrar
                 break;
             case 'atestado':
                 $documento = Atestado::where('hash_validacao', $hash)
@@ -37,7 +37,7 @@ class ValidacaoController extends Controller
                 abort(404); // Se o tipo for inválido, retorna 404
         }
 
-        // Passa o documento e o tipo para a view de validação pública
+        // Passa o documento e o tipo para a view de validação pública que você criou
         return view('validacao.show', [
             'documento' => $documento,
             'tipo' => $tipo,
