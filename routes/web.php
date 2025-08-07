@@ -110,6 +110,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Rota para testar a conexão com a API da ZapSign
 Route::get('/test-zapsign', [App\Http\Controllers\ZapSignController::class, 'testConnection'])->name('zapsign.test');
 
+// Rota para depurar a leitura do ficheiro .env
+Route::get('/debug-env', function () {
+    $envPath = base_path('.env');
+
+    if (!file_exists($envPath)) {
+        return "Erro: O ficheiro .env não foi encontrado em {$envPath}";
+    }
+
+    if (!is_readable($envPath)) {
+        return "Erro: O ficheiro .env existe, mas não pode ser lido. Verifique as permissões.";
+    }
+
+    // Tenta ler o ficheiro e procurar pela linha do ZAPSIGN_TOKEN
+    $envContent = file_get_contents($envPath);
+
+    echo "<h1>Depuração do Ficheiro .env</h1>";
+    echo "<p>Caminho do ficheiro: {$envPath}</p>";
+
+    if (str_contains($envContent, 'ZAPSIGN_TOKEN')) {
+        echo "<p style='color:green;'>SUCESSO: A linha ZAPSIGN_TOKEN foi encontrada no ficheiro.</p>";
+    } else {
+        echo "<p style='color:red;'>FALHA: A linha ZAPSIGN_TOKEN NÃO foi encontrada no ficheiro.</p>";
+    }
+
+    echo "<h2>Conteúdo do Ficheiro:</h2>";
+    echo "<pre>{$envContent}</pre>";
+});
 
 // Rotas de autenticação (login, registro, etc.)
 require __DIR__.'/auth.php';
