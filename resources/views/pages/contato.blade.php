@@ -14,11 +14,9 @@
             <div class="mt-12 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
                 <div class="text-gray-700 dark:text-gray-300">
                     <h3 class="text-xl font-bold mb-4 text-piaui-blue">Nossos Canais</h3>
-                    <p class="mb-2"><strong>Endereço:</strong> Av. Frei Serafim, Teresina - PI</p>
-                    <p class="mb-2"><strong>Telefone:</strong> (86) 99999-9999</p>
                     <p class="mb-2"><strong>Email:</strong> contato@ypysaude.com.br</p>
-                    <h3 class="text-xl font-bold mt-8 mb-4 text-piaui-blue">Horário de Atendimento</h3>
-                    <p>Segunda a Sexta, das 8h às 18h.</p>
+                    <h3 class="text-xl font-bold mt-8 mb-4 text-piaui-blue">Contate-nos:</h3>
+                    <p>Nos envie uma mensagem e saiba mais.</p>
                 </div>
 
                 <form action="#" method="POST">
