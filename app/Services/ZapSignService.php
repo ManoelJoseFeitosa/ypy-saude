@@ -35,7 +35,7 @@ class ZapSignService
     public function testConnection()
     {
         try {
-            $response = $this->httpClient->get('organizations');
+            $response = $this->httpClient->get('organizations/');
 
             if ($response->successful()) {
                 return $response->json();
