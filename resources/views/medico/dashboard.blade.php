@@ -26,11 +26,11 @@
                     <div class="mt-6 flex items-center space-x-4">
                         {{-- Botão de Prescrição --}}
                         <a href="{{ route('medico.prescricoes.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150" style="background-color: #002e7a;">
-                            + Novo Atestado
+                            + Nova Prescrição
                         </a>
                         {{-- Botão de Atestado --}}
                         <a href="{{ route('medico.atestados.create') }}" class="inline-flex items-center px-4 py-2 bg-piaui-green border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150">
-                            + Nova Prescrição
+                            + Novo Atstado
                         </a>
                         <a href="{{ route('medico.laudos.create') }}" class="inline-flex items-center px-4 py-2 bg-piaui-yellow border border-transparent rounded-md font-semibold text-xs text-black uppercase tracking-widest transition ease-in-out duration-150">
                         + Novo Laudo
