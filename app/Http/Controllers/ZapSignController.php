@@ -7,9 +7,6 @@ use App\Services\ZapSignService;
 
 class ZapSignController extends Controller
 {
-    /**
-     * Roda o teste de conexão com a API da ZapSign.
-     */
     public function test(ZapSignService $zapSignService)
     {
         // O Laravel vai injetar nosso serviço automaticamente
