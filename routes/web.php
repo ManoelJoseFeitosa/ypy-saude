@@ -107,47 +107,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Rota para testar a conexão com a API da ZapSign
-Route::get('/test-zapsign', [App\Http\Controllers\ZapSignController::class, 'testConnection']);
-
-// Rota para testar a conexão direta com a API da ZapSign, ignorando a configuração do Laravel
-Route::get('/direct-test-zapsign', function () {
-    // Colamos o token diretamente aqui para o teste
-    $apiToken = '2478e1e9-4350-4a27-9087-27773b194eaac3d71ab6-3be1-4139-b0e3-bf0a73c44f42';
-    $apiUrl = 'https://api.zapsign.com.br/api/v1';
-
-    echo "<h1>Teste Direto de Conexão com ZapSign</h1>";
-    echo "<p>Tentando conectar com o token...</p><hr>";
-
-    try {
-        // Usamos o cliente HTTP do Laravel para fazer a chamada
-        $response = Illuminate\Support\Facades\Http::withQueryParameters(['api_token' => $apiToken])
-            ->timeout(15) // Aumenta o tempo limite para 15 segundos
-            ->get("{$apiUrl}/organizations/");
-
-        if ($response->successful()) {
-            echo "<h2 style='color:green;'>SUCESSO!</h2>";
-            echo "<p>A conexão com a API da ZapSign foi bem-sucedida.</p>";
-            echo "<h3>Dados recebidos:</h3>";
-            echo "<pre>";
-            print_r($response->json());
-            echo "</pre>";
-        } else {
-            echo "<h2 style='color:red;'>FALHA NA RESPOSTA DA API!</h2>";
-            echo "<p>A conexão foi estabelecida, mas a API da ZapSign retornou um erro.</p>";
-            echo "<p>Código do Erro: " . $response->status() . "</p>";
-            echo "<h3>Resposta da API:</h3>";
-            echo "<pre>";
-            print_r($response->json());
-            echo "</pre>";
-        }
-    } catch (\Exception $e) {
-        echo "<h2 style='color:red;'>FALHA GERAL DE CONEXÃO!</h2>";
-        echo "<p>Não foi possível conectar ao servidor da ZapSign. Isto geralmente indica um problema de firewall ou de cURL no servidor da Hostinger.</p>";
-        echo "<h3>Mensagem de Erro Detalhada:</h3>";
-        echo "<pre>" . $e->getMessage() . "</pre>";
-    }
-});
+// Rota de Teste para a Integração ZapSign
+Route::get('/teste-zapsign', [App\Http\Controllers\ZapSignController::class, 'test']);
 
 // Rotas de autenticação (login, registro, etc.)
 require __DIR__.'/auth.php';
