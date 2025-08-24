@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Ypy Saúde') }}</title>
+    <title>{{ $title ?? 'Ypy Saúde' }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans text-gray-900 antialiased bg-gray-100 dark:bg-gray-900">
-    <div class="min-h-screen flex flex-col">
+<body class="font-sans antialiased">
+    <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
         <!-- Navegação -->
         <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,8 +32,8 @@
 
                     <!-- Links de Navegação (Desktop) -->
                     <div class="hidden sm:flex sm:items-center sm:ml-6 space-x-8">
-                        <a href="{{ route('login') }}" class="text-sm text-gray-700 dark:text-gray-300 underline hover:text-gray-900">Log in</a>
-                        <a href="{{ route('register') }}" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700">Registrar</a>
+                        <a href="{{ route('login') }}" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Log in</a>
+                        <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">Registrar</a>
                     </div>
 
                     <!-- Botão Hambúrguer (Mobile) -->
@@ -61,7 +62,7 @@
         </nav>
 
         <!-- Conteúdo da Página -->
-        <main class="flex-grow">
+        <main>
             {{ $slot }}
         </main>
 
