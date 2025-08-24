@@ -51,9 +51,9 @@ class ApiProxyController extends Controller
             return response()->json(['items' => []]);
         }
 
-        // --- LÓGICA DE BUSCA CORRIGIDA COM whereRaw ---
-        // Esta abordagem é mais direta e robusta para buscas case-insensitive.
-        $resultados = Medicamento::whereRaw('LOWER(nome) LIKE ?', ['%' . strtolower($termoBusca) . '%'])
+        // --- LÓGICA DE BUSCA CORRIGIDA COM whereRaw e COLLATE ---
+        // Esta é a abordagem mais robusta para forçar uma busca case-insensitive no MySQL.
+        $resultados = Medicamento::whereRaw('nome COLLATE utf8mb4_unicode_ci LIKE ?', ['%' . $termoBusca . '%'])
             ->limit(20)
             ->get(['id', 'nome'])
             ->map(function ($medicamento) {
