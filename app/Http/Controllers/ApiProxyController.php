@@ -51,9 +51,9 @@ class ApiProxyController extends Controller
             return response()->json(['items' => []]);
         }
 
-        // --- LÓGICA DE BUSCA MELHORADA AQUI ---
-        // Usa DB::raw('LOWER(nome)') para forçar a busca a ser insensível a maiúsculas/minúsculas
-        $resultados = Medicamento::where(DB::raw('LOWER(nome)'), 'LIKE', '%' . strtolower($termoBusca) . '%')
+        // --- LÓGICA DE BUSCA CORRIGIDA COM whereRaw ---
+        // Esta abordagem é mais direta e robusta para buscas case-insensitive.
+        $resultados = Medicamento::whereRaw('LOWER(nome) LIKE ?', ['%' . strtolower($termoBusca) . '%'])
             ->limit(20)
             ->get(['id', 'nome'])
             ->map(function ($medicamento) {
