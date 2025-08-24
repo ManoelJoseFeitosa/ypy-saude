@@ -41,25 +41,29 @@ class ApiProxyController extends Controller
      */
     public function searchMedicamentos(Request $request)
     {
-        $request->validate([
-            'q' => 'sometimes|string|min:3',
-        ]);
-
         $termoBusca = $request->input('q');
 
-        if (!$termoBusca) {
+        // --- LOG DE DIAGNÓSTICO 1 ---
+        // Regista o termo de busca que o servidor recebeu.
+        Log::info('[Busca Medicamento] Termo recebido: ' . $termoBusca);
+
+        if (!$termoBusca || strlen($termoBusca) < 3) {
             return response()->json(['items' => []]);
         }
 
-        // --- LÓGICA DE BUSCA CORRIGIDA COM whereRaw e COLLATE ---
-        // Esta é a abordagem mais robusta para forçar uma busca case-insensitive no MySQL.
+        // A lógica de busca que já tínhamos
         $resultados = Medicamento::whereRaw('nome COLLATE utf8mb4_unicode_ci LIKE ?', ['%' . $termoBusca . '%'])
             ->limit(20)
-            ->get(['id', 'nome'])
-            ->map(function ($medicamento) {
-                return ['value' => $medicamento->nome, 'text' => $medicamento->nome];
-            });
+            ->get(['id', 'nome']);
 
-        return response()->json(['items' => $resultados]);
+        // --- LOG DE DIAGNÓSTICO 2 ---
+        // Regista quantos resultados a consulta à base de dados encontrou.
+        Log::info('[Busca Medicamento] Resultados encontrados: ' . $resultados->count());
+
+        $mappedResults = $resultados->map(function ($medicamento) {
+            return ['value' => $medicamento->nome, 'text' => $medicamento->nome];
+        });
+
+        return response()->json(['items' => $mappedResults]);
     }
 }
