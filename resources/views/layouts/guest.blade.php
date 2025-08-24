@@ -114,24 +114,24 @@
         </main>
 
         <!-- Rodapé Corrigido -->
-        <footer class="bg-blue-100 dark:bg-gray-800">
+        <footer class="bg-blue-200">
             <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                 <div>
-                    <h3 class="font-bold text-lg text-blue-800 dark:text-blue-200">Ypy Saúde</h3>
-                    <p class="text-sm text-blue-700 dark:text-blue-300 mt-2">Simplificando a saúde com tecnologia, diretamente do coração do Piauí para todo o Brasil.</p>
+                    <h3 class="font-bold text-lg text-blue-900">Ypy Saúde</h3>
+                    <p class="text-sm text-blue-800 mt-2">Simplificando a saúde com tecnologia, diretamente do coração do Piauí para todo o Brasil.</p>
                 </div>
                 <div>
-                    <h3 class="font-bold text-lg text-blue-800 dark:text-blue-200">Navegação</h3>
+                    <h3 class="font-bold text-lg text-blue-900">Navegação</h3>
                     <ul class="mt-2 space-y-1 text-sm">
-                        <li><a href="{{ route('home') }}" class="text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-white">Home</a></li>
-                        <li><a href="{{ route('planos') }}" class="text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-white">Planos</a></li>
-                        <li><a href="{{ route('contato') }}" class="text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-white">Contato</a></li>
-                        <li><a href="{{ route('login') }}" class="text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-white">Login</a></li>
+                        <li><a href="{{ route('home') }}" class="text-blue-800 hover:text-blue-950">Home</a></li>
+                        <li><a href="{{ route('planos') }}" class="text-blue-800 hover:text-blue-950">Planos</a></li>
+                        <li><a href="{{ route('contato') }}" class="text-blue-800 hover:text-blue-950">Contato</a></li>
+                        <li><a href="{{ route('login') }}" class="text-blue-800 hover:text-blue-950">Login</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="font-bold text-lg text-blue-800 dark:text-blue-200">Contato</h3>
-                    <address class="mt-2 space-y-1 text-sm not-italic text-blue-700 dark:text-blue-300">
+                    <h3 class="font-bold text-lg text-blue-900">Contato</h3>
+                    <address class="mt-2 space-y-1 text-sm not-italic text-blue-800">
                         <p>contato@ypysaude.com.br</p>
                         <p>(86) 99999-9999</p>
                         <p>Teresina, Piauí</p>
