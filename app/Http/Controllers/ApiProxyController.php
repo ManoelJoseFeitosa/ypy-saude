@@ -63,7 +63,6 @@ class ApiProxyController extends Controller
         $mappedResults = $resultados->map(function ($medicamento) {
             return ['value' => $medicamento->nome, 'text' => $medicamento->nome];
         });
-
         return response()->json(['items' => $mappedResults]);
     }
 }
