@@ -22,20 +22,12 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->registerPolicies();
-
-        /**
-         * Define um Gate para verificar se o utilizador tem o papel 'medico'.
-         * A rota pode usar este gate com o middleware: ->middleware('can:is-medico');
-         */
+        // Define um "Gate" (portão) para verificar se o utilizador é um médico
         Gate::define('is-medico', function (User $user) {
             return $user->tipo === 'medico';
         });
 
-        /**
-         * Define um Gate para verificar se o utilizador tem o papel 'paciente'.
-         * A rota pode usar este gate com o middleware: ->middleware('can:is-paciente');
-         */
+        // Define um "Gate" para verificar se o utilizador é um paciente
         Gate::define('is-paciente', function (User $user) {
             return $user->tipo === 'paciente';
         });
