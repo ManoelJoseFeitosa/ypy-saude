@@ -88,7 +88,7 @@
                 <div class="container mx-auto px-6 py-20">
                     <div class="flex flex-col md:flex-row items-center gap-12">
                         <div class="w-full md:w-1/2">
-                            <img src="{{ asset('images/medico-telemedicina.png') }}" alt="Médico realizando um atendimento por telemedicina" class="rounded-lg shadow-2xl w-full">
+                            <img src="{{ asset('images/medico-telemedicina.png') }}" alt="Médico a realizar um atendimento por telemedicina" class="rounded-lg shadow-2xl w-full">
                         </div>
                         <div class="w-full md:w-1/2">
                             <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-4">O que é o Ypy Saúde?</h2>
@@ -113,27 +113,27 @@
             </section>
         </main>
 
-        <!-- Rodapé -->
-        <footer class="bg-blue-800 text-white">
+        <!-- Rodapé Corrigido -->
+        <footer class="bg-blue-100 dark:bg-gray-800">
             <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                 <div>
-                    <h3 class="font-bold text-lg">Ypy Saúde</h3>
-                    <p class="text-sm text-blue-200 mt-2">Simplificando a saúde com tecnologia, diretamente do coração do Piauí para todo o Brasil.</p>
+                    <h3 class="font-bold text-lg text-blue-800 dark:text-blue-200">Ypy Saúde</h3>
+                    <p class="text-sm text-blue-700 dark:text-blue-300 mt-2">Simplificando a saúde com tecnologia, diretamente do coração do Piauí para todo o Brasil.</p>
                 </div>
                 <div>
-                    <h3 class="font-bold text-lg">Navegação</h3>
+                    <h3 class="font-bold text-lg text-blue-800 dark:text-blue-200">Navegação</h3>
                     <ul class="mt-2 space-y-1 text-sm">
-                        <li><a href="{{ route('home') }}" class="text-blue-200 hover:text-white">Home</a></li>
-                        <li><a href="{{ route('planos') }}" class="text-blue-200 hover:text-white">Planos</a></li>
-                        <li><a href="{{ route('contato') }}" class="text-blue-200 hover:text-white">Contato</a></li>
-                        <li><a href="{{ route('login') }}" class="text-blue-200 hover:text-white">Login</a></li>
+                        <li><a href="{{ route('home') }}" class="text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-white">Home</a></li>
+                        <li><a href="{{ route('planos') }}" class="text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-white">Planos</a></li>
+                        <li><a href="{{ route('contato') }}" class="text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-white">Contato</a></li>
+                        <li><a href="{{ route('login') }}" class="text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-white">Login</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="font-bold text-lg">Contato</h3>
-                    <address class="mt-2 space-y-1 text-sm not-italic text-blue-200">
+                    <h3 class="font-bold text-lg text-blue-800 dark:text-blue-200">Contato</h3>
+                    <address class="mt-2 space-y-1 text-sm not-italic text-blue-700 dark:text-blue-300">
                         <p>contato@ypysaude.com.br</p>
-                        <p>(86) 99950-3815</p>
+                        <p>(86) 99999-9999</p>
                         <p>Teresina, Piauí</p>
                     </address>
                 </div>
