@@ -35,4 +35,22 @@ class ApiProxyController extends Controller
             return response()->json([], 500);
         }
     }
+
+    /**
+     * Procura medicamentos na base de dados local.
+     */
+    public function searchMedicamentos(Request $request)
+    {
+        $request->validate([
+            'q' => 'required|string|min:3',
+        ]);
+
+        $termoBusca = $request->input('q');
+
+        $resultados = Medicamento::where('nome', 'LIKE', "%{$termoBusca}%")
+            ->limit(10) // Limita a 10 resultados para não sobrecarregar
+            ->pluck('nome'); // Retorna apenas a coluna 'nome'
+
+        return response()->json($resultados);
+    }
 }
