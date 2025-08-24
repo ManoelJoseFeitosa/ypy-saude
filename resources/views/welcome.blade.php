@@ -1,4 +1,3 @@
-{{-- Usamos o novo layout de convidado que criámos --}}
 <x-guest-layout>
     {{-- Seção Principal (Hero) --}}
     <section class="bg-white dark:bg-gray-800">
@@ -18,24 +17,16 @@
     {{-- Seção de Funcionalidades --}}
     <section class="bg-gray-50 dark:bg-gray-900">
         <div class="container mx-auto px-6 py-20">
-            {{-- Usamos flex-col para empilhar em mobile e md:flex-row para alinhar em desktop --}}
             <div class="flex flex-col md:flex-row items-center gap-12">
-
-                {{-- Coluna da Imagem --}}
                 <div class="w-full md:w-1/2">
-                    <img src="{{ asset('images/medico-telemedicina.png') }}" alt="Médico realizando um atendimento por telemedicina" class="rounded-lg shadow-2xl w-full">
+                    <img src="{{ asset('images/medico-telemedicina.png') }}" alt="Médico a realizar um atendimento por telemedicina" class="rounded-lg shadow-2xl w-full">
                 </div>
-
-                {{-- Coluna do Texto --}}
                 <div class="w-full md:w-1/2">
                     <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-4">O que é o Ypy Saúde?</h2>
-                    
                     <p class="text-gray-700 dark:text-gray-300 mb-6 text-lg text-justify">
                         O Ypy Saúde é uma plataforma completa de telemedicina projetada para conectar médicos e pacientes no Piauí com segurança e eficiência. Nossa missão é modernizar o acesso à saúde, oferecendo ferramentas digitais que simplificam o dia a dia e garantem a validade e segurança dos documentos médicos.
                     </p>
-
                     <h3 class="text-2xl font-semibold text-gray-800 dark:text-white mb-3">Nossas Funcionalidades:</h3>
-                    
                     <ul class="list-disc list-inside space-y-3 text-gray-700 dark:text-gray-300">
                         <li class="text-lg text-justify">
                             <strong>Prescrições Digitais:</strong> Emita receitas médicas com assinatura digital, validade em todo o território nacional e QR Code para verificação instantânea.
@@ -48,7 +39,6 @@
                         </li>
                     </ul>
                 </div>
-
             </div>
         </div>
     </section>
