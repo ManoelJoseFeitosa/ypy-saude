@@ -7,81 +7,89 @@
 
     <title>{{ $title ?? 'Ypy Saúde' }}</title>
 
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
 
+    <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans text-gray-900 antialiased relative">
-    
-    {{-- Barras Laterais Azuis (visíveis apenas em ecrãs maiores) --}}
-    <div class="absolute left-0 top-0 bottom-0 w-10 bg-blue-800 hidden sm:block"></div>
-    <div class="absolute right-0 top-0 bottom-0 w-10 bg-blue-800 hidden sm:block"></div>
-
-    <div class="min-h-screen bg-white dark:bg-gray-900 flex flex-col">
-        <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 w-full z-10">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <div class="shrink-0 flex items-center">
-                            <a href="{{ route('home') }}">
-                                <img src="{{ asset('images/logo_ypysaude.png') }}" alt="Logo Ypy Saúde" class="block h-12 w-auto">
-                            </a>
-                        </div>
+<body class="font-sans text-gray-900 antialiased">
+    {{-- A classe 'flex-col' e 'min-h-screen' garantem que o rodapé fique no final, mesmo com pouco conteúdo --}}
+    <div class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+        
+        {{-- CABEÇALHO --}}
+        <header class="bg-blue-800 shadow-md sticky top-0 z-50">
+            <nav x-data="{ open: false }" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-20">
+                    {{-- Logo --}}
+                    <div class="flex-shrink-0">
+                        <a href="{{ route('home') }}">
+                            <img src="{{ asset('images/logo_ypysaude.png') }}" alt="Logo Ypy Saúde" class="block h-14 w-auto">
+                        </a>
                     </div>
 
-                    <div class="hidden sm:flex sm:items-center sm:ml-6 space-x-8">
-                        <a href="{{ route('login') }}" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Log in</a>
-                        <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">Registrar</a>
+                    {{-- Navegação Desktop --}}
+                    <div class="hidden md:flex items-center space-x-6">
+                        <a href="{{ route('login') }}" class="text-white font-medium hover:text-yellow-300 transition duration-150 ease-in-out">Entrar</a>
+                        <a href="{{ route('register') }}" class="inline-block bg-green-500 text-white font-bold py-2 px-5 rounded-lg hover:bg-green-600 transition duration-150 ease-in-out shadow-sm">
+                            Criar Conta
+                        </a>
                     </div>
 
-                    <div class="-mr-2 flex items-center sm:hidden">
-                        <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 focus:outline-none">
-                            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    {{-- Botão Hamburger (Mobile) --}}
+                    <div class="md:hidden flex items-center">
+                        <button @click="open = !open" class="text-white focus:outline-none">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path x-show="!open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                                <path x-show="open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-                <div class="pt-2 pb-3 space-y-1">
-                    <x-responsive-nav-link :href="route('login')">{{ __('Log in') }}</x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('register')">{{ __('Registrar') }}</x-responsive-nav-link>
+                {{-- Menu Mobile --}}
+                <div x-show="open" @click.away="open = false" class="md:hidden pb-4">
+                    <a href="{{ route('login') }}" class="block text-white py-2 px-3 rounded hover:bg-blue-700">Entrar</a>
+                    <a href="{{ route('register') }}" class="block mt-2 bg-green-500 text-white text-center font-bold py-2 px-5 rounded-lg hover:bg-green-600 transition duration-150 ease-in-out">
+                        Criar Conta
+                    </a>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </header>
 
+        {{-- CONTEÚDO PRINCIPAL --}}
+        {{-- A classe 'flex-grow' faz com que esta seção ocupe todo o espaço disponível --}}
         <main class="flex-grow">
             {{ $slot }}
         </main>
 
-        <footer class="bg-blue-800 text-white">
+        {{-- RODAPÉ --}}
+        <footer class="bg-blue-900 text-white">
             <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                 <div>
-                    <h3 class="font-bold text-lg">Ypy Saúde</h3>
+                    <h3 class="font-bold text-lg text-yellow-300">Ypy Saúde</h3>
                     <p class="text-sm text-blue-200 mt-2">Simplificando a saúde com tecnologia, diretamente do coração do Piauí para todo o Brasil.</p>
                 </div>
                 <div>
-                    <h3 class="font-bold text-lg">Navegação</h3>
+                    <h3 class="font-bold text-lg text-yellow-300">Navegação</h3>
                     <ul class="mt-2 space-y-1 text-sm">
                         <li><a href="{{ route('home') }}" class="text-blue-200 hover:text-white">Home</a></li>
-                        <li><a href="{{ route('planos') }}" class="text-blue-200 hover:text-white">Planos</a></li>
-                        <li><a href="{{ route('contato') }}" class="text-blue-200 hover:text-white">Contato</a></li>
-                        <li><a href="{{ route('login') }}" class="text-blue-200 hover:text-white">Login</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white">Planos</a></li>
+                        <li><a href="#" class="text-blue-200 hover:text-white">Contato</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="font-bold text-lg">Contato</h3>
+                    <h3 class="font-bold text-lg text-yellow-300">Contato</h3>
                     <address class="mt-2 space-y-1 text-sm not-italic text-blue-200">
                         <p>contato@ypysaude.com.br</p>
-                        <p>(86) 99999-9999</p>
                         <p>Teresina, Piauí</p>
                     </address>
                 </div>
+            </div>
+            <div class="border-t border-blue-800 mt-8 py-4">
+                <p class="text-center text-sm text-blue-300">&copy; {{ date('Y') }} Ypy Saúde. Todos os direitos reservados.</p>
             </div>
         </footer>
     </div>
