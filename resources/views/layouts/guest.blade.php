@@ -16,11 +16,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans text-gray-900 antialiased">
-    {{-- A classe 'flex-col' e 'min-h-screen' garantem que o rodapé fique no final, mesmo com pouco conteúdo --}}
-    <div class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    {{-- Estrutura de Grid que força o rodapé para o final da página --}}
+    <div class="grid grid-rows-[auto_1fr_auto] min-h-screen bg-gray-50 dark:bg-gray-900">
         
         {{-- CABEÇALHO --}}
-        <header class="bg-blue-800 shadow-md sticky top-0 z-50">
+        <header class="bg-blue-800 shadow-lg sticky top-0 z-50">
             <nav x-data="{ open: false }" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-20">
                     {{-- Logo --}}
@@ -59,9 +59,8 @@
             </nav>
         </header>
 
-        {{-- CONTEÚDO PRINCIPAL --}}
-        {{-- A classe 'flex-grow' faz com que esta seção ocupe todo o espaço disponível --}}
-        <main class="flex-grow">
+        {{-- CONTEÚDO PRINCIPAL (ocupa todo o espaço restante) --}}
+        <main>
             {{ $slot }}
         </main>
 
