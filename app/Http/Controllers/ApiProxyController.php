@@ -37,20 +37,28 @@ class ApiProxyController extends Controller
     }
 
     /**
-     * Procura medicamentos na base de dados local.
+     * Procura medicamentos na base de dados local para o Tom Select.
      */
     public function searchMedicamentos(Request $request)
     {
         $request->validate([
-            'q' => 'required|string|min:3',
+            'q' => 'sometimes|string|min:3',
         ]);
 
         $termoBusca = $request->input('q');
 
-        $resultados = Medicamento::where('nome', 'LIKE', "%{$termoBusca}%")
-            ->limit(10) // Limita a 10 resultados para não sobrecarregar
-            ->pluck('nome'); // Retorna apenas a coluna 'nome'
+        if (!$termoBusca) {
+            return response()->json(['items' => []]);
+        }
 
-        return response()->json($resultados);
+        $resultados = Medicamento::where('nome', 'LIKE', "%{$termoBusca}%")
+            ->limit(20) // Aumenta o limite para mais opções
+            ->get(['id', 'nome']) // Pega o ID e o nome
+            ->map(function ($medicamento) {
+                // Formata para o padrão que o Tom Select espera
+                return ['value' => $medicamento->nome, 'text' => $medicamento->nome];
+            });
+
+        return response()->json(['items' => $resultados]);
     }
 }

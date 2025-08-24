@@ -85,6 +85,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/horarios', [HorarioController::class, 'index'])->name('horarios.index');
         Route::post('/horarios', [HorarioController::class, 'store'])->name('horarios.store');
         Route::delete('/horarios/{horario}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
+        Route::get('/api/medicamentos/search', [\App\Http\Controllers\Medico\PrescricaoController::class, 'searchMedicamentos'])->name('api.medicamentos.search');
     });
 
     // Rotas do Paciente
