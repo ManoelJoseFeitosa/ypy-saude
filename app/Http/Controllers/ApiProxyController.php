@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Medicamento;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -44,7 +45,6 @@ class ApiProxyController extends Controller
         $termoBusca = $request->input('q');
 
         // --- LOG DE DIAGNÓSTICO 1 ---
-        // Regista o termo de busca que o servidor recebeu.
         Log::info('[Busca Medicamento] Termo recebido: ' . $termoBusca);
 
         if (!$termoBusca || strlen($termoBusca) < 3) {
@@ -57,12 +57,12 @@ class ApiProxyController extends Controller
             ->get(['id', 'nome']);
 
         // --- LOG DE DIAGNÓSTICO 2 ---
-        // Regista quantos resultados a consulta à base de dados encontrou.
         Log::info('[Busca Medicamento] Resultados encontrados: ' . $resultados->count());
 
         $mappedResults = $resultados->map(function ($medicamento) {
             return ['value' => $medicamento->nome, 'text' => $medicamento->nome];
         });
+
         return response()->json(['items' => $mappedResults]);
     }
 }
