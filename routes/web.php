@@ -16,10 +16,11 @@ use App\Http\Controllers\Paciente\DocumentoController;
 use App\Http\Controllers\Paciente\AgendamentoController;
 use App\Http\Controllers\EHRTestController;
 use App\Http\Controllers\MercadoPagoController;
+use App\Http\Controllers\ZapSignController;
 
 /*
 |--------------------------------------------------------------------------
-| Rotas Públicas (Acessíveis a todos)
+| Rotas Públicas
 |--------------------------------------------------------------------------
 */
 Route::get('/', [LandingPageController::class, 'home'])->name('home');
@@ -35,7 +36,6 @@ Route::get('/validar/laudo/{hash}', [ValidacaoController::class, 'show'])->setDe
 // Rotas de Integração
 Route::get('/ehr/paciente/{id}', [EHRTestController::class, 'show'])->name('ehr.paciente.show');
 
-
 /*
 |--------------------------------------------------------------------------
 | Rotas de Pagamentos e Assinaturas (Mercado Pago)
@@ -48,12 +48,11 @@ Route::get('/subscribe/failure', [MercadoPagoController::class, 'failure'])->nam
 
 /*
 |--------------------------------------------------------------------------
-| Rotas Protegidas (Exigem Login e Verificação de Email)
+| Rotas Protegidas (Exigem Login e Verificação)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
     
-    // Rota principal do Dashboard (redireciona para o painel correto)
     Route::get('/dashboard', function () {
         if (auth()->user()->tipo === 'medico') {
             return redirect()->route('medico.dashboard');
@@ -65,17 +64,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('can:is-medico')->prefix('medico')->name('medico.')->group(function () {
         Route::get('/dashboard', [MedicoDashboardController::class, 'index'])->name('dashboard');
         
-        Route::get('/prescricoes/nova', [PrescricaoController::class, 'create'])->name('prescricoes.create');
-        Route::post('/prescricoes', [PrescricaoController::class, 'store'])->name('prescricoes.store');
-        Route::get('/prescricoes/{prescricao}', [PrescricaoController::class, 'show'])->name('prescricoes.show');
+        Route::resource('prescricoes', PrescricaoController::class)->only(['create', 'store', 'show']);
         Route::get('/prescricoes/{prescricao}/pdf', [PrescricaoController::class, 'gerarPdf'])->name('prescricoes.pdf');
 
-        Route::get('/atestados/novo', [AtestadoController::class, 'create'])->name('atestados.create');
-        Route::post('/atestados', [AtestadoController::class, 'store'])->name('atestados.store');
+        Route::resource('atestados', AtestadoController::class)->only(['create', 'store']);
         Route::get('/atestados/{atestado}/pdf', [AtestadoController::class, 'gerarPdf'])->name('atestados.pdf');
 
-        Route::get('/laudos/novo', [LaudoController::class, 'create'])->name('laudos.create');
-        Route::post('/laudos', [LaudoController::class, 'store'])->name('laudos.store');
+        Route::resource('laudos', LaudoController::class)->only(['create', 'store']);
         Route::get('/laudos/{laudo}/pdf', [LaudoController::class, 'gerarPdf'])->name('laudos.pdf');
 
         Route::get('/pacientes', [PacienteController::class, 'index'])->name('pacientes.index');
@@ -85,6 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/horarios', [HorarioController::class, 'index'])->name('horarios.index');
         Route::post('/horarios', [HorarioController::class, 'store'])->name('horarios.store');
         Route::delete('/horarios/{horario}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
+        
         Route::get('/api/medicamentos-search', [ApiProxyController::class, 'searchMedicamentos'])->name('api.medicamentos.search');
     });
 
@@ -102,14 +98,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/medico/{medico}', [AgendamentoController::class, 'store'])->name('store');
     });
 
-    // Rotas de Perfil do Usuário (agora dentro do mesmo grupo)
+    // Rotas de Perfil do Usuário
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // Rota de Teste para a Integração ZapSign
-Route::get('/teste-zapsign', [App\Http\Controllers\ZapSignController::class, 'test']);
+Route::get('/teste-zapsign', [ZapSignController::class, 'test']);
 
 // Rotas de autenticação (login, registro, etc.)
 require __DIR__.'/auth.php';
