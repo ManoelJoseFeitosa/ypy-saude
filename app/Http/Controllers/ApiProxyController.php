@@ -37,7 +37,7 @@ class ApiProxyController extends Controller
     }
 
     /**
-     * Procura medicamentos na base de dados local para o Tom Select.
+     * Procura medicamentos na base de dados local de forma insensível a maiúsculas/minúsculas.
      */
     public function searchMedicamentos(Request $request)
     {
@@ -51,11 +51,12 @@ class ApiProxyController extends Controller
             return response()->json(['items' => []]);
         }
 
-        $resultados = Medicamento::where('nome', 'LIKE', "%{$termoBusca}%")
-            ->limit(20) // Aumenta o limite para mais opções
-            ->get(['id', 'nome']) // Pega o ID e o nome
+        // --- LÓGICA DE BUSCA MELHORADA AQUI ---
+        // Usa DB::raw('LOWER(nome)') para forçar a busca a ser insensível a maiúsculas/minúsculas
+        $resultados = Medicamento::where(DB::raw('LOWER(nome)'), 'LIKE', '%' . strtolower($termoBusca) . '%')
+            ->limit(20)
+            ->get(['id', 'nome'])
             ->map(function ($medicamento) {
-                // Formata para o padrão que o Tom Select espera
                 return ['value' => $medicamento->nome, 'text' => $medicamento->nome];
             });
 
